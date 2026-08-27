@@ -83,10 +83,10 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
       <ul class="rules">
         <li>Số hóa đơn: ghép <em>Ký hiệu</em> + <code>#</code> + <em>Số</em> đệm 8 chữ số → <code>1C26TVN#00002086</code>.</li>
         <li>Ngày hóa đơn: theo dạng <code>dd.mm.yyyy</code> (ghi dạng text để SAP không tự đổi định dạng).</li>
-        <li>PO: lấy mã <code>TRIMMINGVN-xxxx</code> trong dòng mô tả hóa đơn → tra cột <em>PO No ScaX</em> trong file PO SCAF-SCAX → ra <em>PO No.</em> (ví dụ <code>TRI0004600</code>) → lọc cột A của file inbound.</li>
+        <li>PO: lấy mã PO trong dòng mô tả hóa đơn → tra cột <em>PO No ScaX</em> (ví dụ <code>TRIMMINGVN-0725</code>) → ra <em>PO No.</em> <code>TRI0004600</code>. Nếu không thấy ở cột ScaX thì dò tiếp cột <em>PO No.</em> — trường hợp PO đã là ScaF sẵn (ví dụ hóa đơn ghi thẳng <code>TRI0005800</code>) → dùng luôn mã đó. Sau đó lọc cột A của file inbound.</li>
         <li>Item: lấy mã <code>LB xxxx</code> trong dòng mô tả → tìm trong <em>Material Description</em> / <em>Specification</em>, cộng dồn số lượng theo PO đó rồi so với số lượng hóa đơn.</li>
         <li>Nếu lệch: lấy mã invoice của packing list trong <em>Specification</em> (ví dụ <code>54A2</code>) rồi đối chiếu từng nhóm size với packing list để chỉ ra size bị lệch.</li>
-        <li>Cột thêm: <code>Amount = Invoice Qty × (Gross Price + Surcharge Item)</code>, <code>Balance = Quantity − (Invoice Qty + Delivered Qty)</code> — ghi dưới dạng công thức Excel.</li>
+        <li>Cột thêm: <code>Amount = Invoice Qty × Gross Price + Surcharge Item</code> (<code>=V*M+N</code>), <code>Balance = Quantity − (Invoice Qty + Delivered Qty)</code> (<code>=R-(V+S)</code>) — ghi dưới dạng công thức Excel.</li>
         <li>Dòng có trong hóa đơn nhưng thiếu hẳn trong file inbound: chỉ báo cáo (kèm số liệu lấy từ file PO), không tự thêm dòng.</li>
       </ul>
     </details>
@@ -204,7 +204,7 @@ function parseInvoice(lines) {
   const reQty = /(?:C[áa]i|PCS|Pcs|Chi[ếe]c|PC)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)/;
 
   const items = [];
-  let pendingCode = null, pendingPo = null;
+  let pendingCode = null, pendingPo = null, cur = null, buf = [];
   const startIdx = lines.findIndex((l) => /T[êe]n h[àa]ng h[óo]a|Description/i.test(l));
   const body = startIdx >= 0 ? lines.slice(startIdx) : lines;
 
@@ -212,19 +212,21 @@ function parseInvoice(lines) {
     if (/C[ộo]ng ti[ềe]n h[àa]ng|Total amount/i.test(L)) break;
     let mc = L.match(reCode);
     if (!mc && /\/\//.test(L)) mc = L.match(reCodeAlt);
-    if (mc && !/T[êe]n h[àa]ng/i.test(L)) pendingCode = (mc[1] + ' ' + mc[2]).trim();
+    const isCode = mc && !/T[êe]n h[àa]ng/i.test(L);
+    if (isCode) { pendingCode = (mc[1] + ' ' + mc[2]).trim(); cur = null; buf = [L]; }
 
     const mq = L.match(reQty);
     if (mq) {
-      items.push({
-        code: pendingCode || '',
-        po: pendingPo || '',
-        qty: num(mq[1]),
-        price: num(mq[2]),
-        amount: num(mq[3]),
-      });
-      pendingCode = null; pendingPo = null;
+      cur = {
+        code: pendingCode || '', po: pendingPo || '', text: buf.concat([L]).join(' '),
+        qty: num(mq[1]), price: num(mq[2]), amount: num(mq[3]),
+      };
+      items.push(cur);
+      pendingCode = null; pendingPo = null; buf = [];
+    } else if (!isCode) {
+      if (cur) cur.text += ' ' + L; else buf.push(L);
     }
+
     const mp = L.match(rePo);
     if (mp) {
       const po = mp[1] + '-' + mp[2];
@@ -233,6 +235,15 @@ function parseInvoice(lines) {
     }
   }
   return { serial, no, invNo, invDate, items };
+}
+
+/* Tra PO: ưu tiên PO ScaX (TRIMMINGVN-xxxx), nếu không có thì thử PO ScaF (mã PO No. trong file PO) */
+function resolvePo(item, poIdx) {
+  const text = (item.text || '') + ' ' + (item.po || '');
+  const toks = [...new Set(text.toUpperCase().match(/[A-Z0-9][A-Z0-9\-\/]{3,}/g) || [])];
+  for (const t of toks) if (poIdx.scax.has(t)) return { scax: t, sap: poIdx.scax.get(t), via: 'ScaX' };
+  for (const t of toks) if (poIdx.sap.has(t)) return { scax: '', sap: poIdx.sap.get(t), via: 'ScaF' };
+  return { scax: item.po || '', sap: '', via: '' };
 }
 
 /* ================= Packing list ================= */
@@ -328,14 +339,15 @@ async function readPoFile(file) {
       break;
     }
   }
-  if (!cScax || !cPo) throw new Error('Không tìm thấy cột "PO No ScaX" / "PO No." trong file PO SCAF-SCAX.');
-  const map = new Map(); const rows = [];
+  if (!cPo) throw new Error('Không tìm thấy cột "PO No." trong file PO SCAF-SCAX.');
+  const map = new Map(); const sap = new Map(); const rows = [];
   for (let r = hdrRow + 1; r <= ws.rowCount; r++) {
     const row = ws.getRow(r);
-    const scax = row.getCell(cScax).text.trim();
+    const scax = cScax ? row.getCell(cScax).text.trim() : '';
     const po = row.getCell(cPo).text.trim();
-    if (!scax || !po) continue;
-    if (!map.has(scax.toUpperCase())) map.set(scax.toUpperCase(), po);
+    if (!po) continue;
+    if (scax && !map.has(scax.toUpperCase())) map.set(scax.toUpperCase(), po);
+    if (!sap.has(po.toUpperCase())) sap.set(po.toUpperCase(), po);
     rows.push({
       scax: scax.toUpperCase(), po,
       spec: cSpec ? row.getCell(cSpec).text.trim() : '',
@@ -345,7 +357,7 @@ async function readPoFile(file) {
       name: cName ? row.getCell(cName).text.trim() : '',
     });
   }
-  return { map, rows };
+  return { map, sap, rows };
 }
 
 /* ================= Main ================= */
@@ -427,7 +439,10 @@ async function run() {
     /* ---- match ---- */
     const lines = [];
     for (const it of inv.items) {
-      const sapPo = po.map.get(it.po.toUpperCase()) || '';
+      const rp = resolvePo(it, { scax: po.map, sap: po.sap });
+      const sapPo = rp.sap;
+      it.poScax = rp.scax; it.poVia = rp.via;
+      it.po = rp.scax || rp.sap || it.po;
       const codeN = norm(it.code);
       const hit = sapPo ? rows.filter((x) => x.poV.toUpperCase() === sapPo.toUpperCase() && (norm(x.desc).includes(codeN) || norm(x.spec).includes(codeN))) : [];
       hit.forEach((h) => { h.matched = it; });
@@ -441,7 +456,15 @@ async function run() {
       hit.forEach((h) => { const s = h.size || '?'; bySize[s] = (bySize[s] || 0) + (isNaN(h.invQty) || h.invQty === 0 ? (isNaN(h.qty) ? 0 : h.qty) : h.invQty); });
 
       // packing list side
-      const pg = pkl.filter((g) => g.label === codeN && (!it.po || !g.po || norm(g.po).endsWith(norm(it.po).slice(-4))));
+      const pg = pkl.filter((g) => {
+        if (g.label !== codeN) return false;
+        if (rp.via === 'ScaX' && rp.scax) return !g.po || norm(g.po).endsWith(norm(rp.scax).slice(-4));
+        if (sapPo) { // PO ScaF: packing list thường ghi thẳng mã PO mới
+          const raw = norm(g.raw.join(' '));
+          if (raw.includes(norm(sapPo))) return true;
+        }
+        return true;
+      });
       const pklSize = {}; const pklCodesUsed = new Set();
       pg.forEach((g) => {
         Object.entries(g.inv).forEach(([code, sizes]) => {
@@ -473,7 +496,7 @@ async function run() {
       }
 
       let status, note;
-      if (!sapPo) { status = 'LỖI'; note = `Không tìm thấy ${it.po} trong file PO SCAF-SCAX`; }
+      if (!sapPo) { status = 'LỖI'; note = `Không tìm thấy PO "${it.po}" trong file PO SCAF-SCAX (đã dò cả cột PO No ScaX và PO No.)`; }
       else if (!hit.length) {
         status = 'THIẾU DÒNG';
         note = `Không có dòng nào trong file inbound cho PO ${sapPo} + item ${it.code}` +
@@ -494,7 +517,7 @@ async function run() {
       deliv: colLetter(H.deliv), invQty: colLetter(H.invQty),
     };
     const start = H.last + 1;
-    const extra = ['Amount', 'Balance', 'Check Status', 'Invoice Item', 'PO ScaX', 'Invoice No (check)', 'PKL Invoice Ref', 'Inbound Qty (item)', 'Invoice Qty (item)', 'PKL Qty (size)', 'Inbound Qty (size)', 'Diff (size)', 'Ghi chú'];
+    const extra = ['Amount', 'Balance', 'Check Status', 'Invoice Item', 'PO (hóa đơn)', 'Loại PO', 'Invoice No (check)', 'PKL Invoice Ref', 'Inbound Qty (item)', 'Invoice Qty (item)', 'PKL Qty (size)', 'Inbound Qty (size)', 'Diff (size)', 'Ghi chú'];
     const hRow = ws.getRow(1);
     extra.forEach((t, i) => {
       const c = hRow.getCell(start + i);
@@ -516,7 +539,7 @@ async function run() {
         ws.getCell(r, H.invDate).numFmt = '@';
       } else if (onlyMatched) { toDelete.push(r); continue; }
 
-      xr.getCell(start).value = { formula: `${L.invQty}${r}*(${L.price}${r}+${L.sur}${r})` };
+      xr.getCell(start).value = { formula: `${L.invQty}${r}*${L.price}${r}+${L.sur}${r}` };
       xr.getCell(start + 1).value = { formula: `${L.qty}${r}-(${L.invQty}${r}+${L.deliv}${r})` };
       xr.getCell(start).numFmt = '#,##0';
       xr.getCell(start + 1).numFmt = '#,##0';
@@ -526,7 +549,7 @@ async function run() {
         const sz = row.size || '?';
         const inbS = info.bySize[sz] || 0, pklS = info.pklSize[sz];
         const dif = pklS == null ? null : inbS - pklS;
-        const vals = [info.status, m.code, m.po, inv.invNo, info.pklCodes.join(', '),
+        const vals = [info.status, m.code, m.po, m.poVia || '', inv.invNo, info.pklCodes.join(', '),
           info.base, m.qty, pklS == null ? '' : pklS, inbS, dif == null ? '' : dif,
           info.status === 'KHỚP' ? '' : info.note];
         vals.forEach((v, i) => { xr.getCell(start + 2 + i).value = v; });
@@ -552,7 +575,7 @@ async function run() {
         if (fill) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } };
       });
     };
-    [22, 16, 16, 16, 14, 14, 14, 14, 60].forEach((w, i) => { rs.getColumn(i + 1).width = w; });
+    [22, 18, 10, 16, 14, 14, 14, 12, 14, 60].forEach((w, i) => { rs.getColumn(i + 1).width = w; });
     let R = 1;
     put(R++, ['BÁO CÁO ĐỐI CHIẾU HÓA ĐƠN – INBOUND'], true);
     put(R++, ['Số hóa đơn', inv.invNo]);
@@ -561,9 +584,9 @@ async function run() {
     put(R++, ['File hóa đơn', FILES.inv.name]);
     put(R++, ['File packing list', FILES.pkl.name]);
     R++;
-    put(R++, ['Item', 'PO ScaX', 'PO SAP', 'SL hóa đơn', 'SL inbound', 'SL packing', 'Lệch', 'Kết quả', 'Ghi chú'], true, 'FFDDEBF7');
+    put(R++, ['Item', 'PO (hóa đơn)', 'Loại PO', 'PO SAP', 'SL hóa đơn', 'SL inbound', 'SL packing', 'Lệch', 'Kết quả', 'Ghi chú'], true, 'FFDDEBF7');
     for (const l of lines) {
-      put(R++, [l.it.code, l.it.po, l.sapPo || '(không tìm thấy)', l.it.qty, l.base, l.pklTotal || '', l.base - l.it.qty,
+      put(R++, [l.it.code, l.it.po, l.it.poVia || '(?)', l.sapPo || '(không tìm thấy)', l.it.qty, l.base, l.pklTotal || '', l.base - l.it.qty,
         l.status, l.note], false, l.status === 'KHỚP' ? null : 'FFFFF2CC');
     }
     R++;
@@ -600,7 +623,7 @@ async function run() {
     a.textContent = '⬇ Tải file: ' + name;
     a.classList.remove('hidden');
     RESULT = { inv, lines };
-    window.__RESULT__ = { invNo: inv.invNo, invDate: inv.invDate, items: inv.items, lines: lines.map((l) => ({ code: l.it.code, po: l.it.po, sapPo: l.sapPo, invQty: l.it.qty, inbQty: l.base, pklQty: l.pklTotal, status: l.status, note: l.note, diffs: l.diffs, poRows: l.poRows.length })) };
+    window.__RESULT__ = { invNo: inv.invNo, invDate: inv.invDate, lines: lines.map((l) => ({ code: l.it.code, po: l.it.po, via: l.it.poVia, sapPo: l.sapPo, invQty: l.it.qty, inbQty: l.base, pklQty: l.pklTotal, status: l.status, note: l.note, diffs: l.diffs.length, poRows: l.poRows.length })) };
 
     renderReport(inv, lines);
     log('Hoàn tất.', 'ok');
@@ -615,10 +638,10 @@ async function run() {
 function renderReport(inv, lines) {
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
   let h = `<div class="sum"><div><span>Số hóa đơn</span><b>${esc(inv.invNo)}</b></div><div><span>Ngày hóa đơn</span><b>${esc(inv.invDate)}</b></div><div><span>Số dòng</span><b>${lines.length}</b></div><div><span>Sai lệch</span><b class="${lines.some(l => l.status !== 'KHỚP') ? 'bad' : 'good'}">${lines.filter(l => l.status !== 'KHỚP').length}</b></div></div>`;
-  h += '<table><thead><tr><th>Item</th><th>PO ScaX</th><th>PO SAP</th><th class="n">SL hóa đơn</th><th class="n">SL inbound</th><th class="n">SL packing</th><th class="n">Lệch</th><th>Kết quả</th><th>Ghi chú</th></tr></thead><tbody>';
+  h += '<table><thead><tr><th>Item</th><th>PO (hóa đơn)</th><th>PO SAP</th><th class="n">SL hóa đơn</th><th class="n">SL inbound</th><th class="n">SL packing</th><th class="n">Lệch</th><th>Kết quả</th><th>Ghi chú</th></tr></thead><tbody>';
   for (const l of lines) {
     const ok = l.status === 'KHỚP';
-    h += `<tr class="${ok ? '' : 'warn'}"><td>${esc(l.it.code)}</td><td>${esc(l.it.po)}</td><td>${esc(l.sapPo || '—')}</td>
+    h += `<tr class="${ok ? '' : 'warn'}"><td>${esc(l.it.code)}</td><td>${esc(l.it.po)}${l.it.poVia ? ` <span class="tag ${l.it.poVia === 'ScaF' ? 'bad' : 'good'}" style="background:var(--brand-soft);color:var(--brand)">${esc(l.it.poVia)}</span>` : ''}</td><td>${esc(l.sapPo || '—')}</td>
     <td class="n">${l.it.qty.toLocaleString('vi-VN')}</td><td class="n">${l.base.toLocaleString('vi-VN')}</td>
     <td class="n">${l.pklTotal ? l.pklTotal.toLocaleString('vi-VN') : '—'}</td>
     <td class="n ${l.base - l.it.qty ? 'bad' : ''}">${(l.base - l.it.qty).toLocaleString('vi-VN')}</td>
