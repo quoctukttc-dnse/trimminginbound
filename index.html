@@ -16,6 +16,7 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
 h1{font-size:22px;margin:0 0 4px}
+.ver{display:inline-block;vertical-align:middle;margin-left:8px;padding:2px 9px;border-radius:20px;background:var(--brand-soft);color:var(--brand);font-size:12px;font-weight:700;letter-spacing:.02em}
 .sub{color:var(--muted);margin:0 0 24px;font-size:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
@@ -80,7 +81,7 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
 </head>
 <body>
 <div class="wrap">
-  <h1>Inbound SAP – Đối chiếu hóa đơn TRIMMINGVN</h1>
+  <h1>Inbound SAP – Đối chiếu hóa đơn TRIMMINGVN <span class="ver">v4 · 27.08.2026</span></h1>
   <p class="sub">Tải lên 4 file, công cụ xuất ra <b>2 file</b>: file import SAP (giữ nguyên cột &amp; sheet của template, chỉ điền số/ngày hóa đơn) và file báo cáo riêng (thêm cột Amount, Balance và các cột đối chiếu). Mọi xử lý chạy ngay trong trình duyệt – không có dữ liệu nào được gửi lên máy chủ.</p>
 
   <div class="card">
