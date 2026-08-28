@@ -52,6 +52,12 @@ table.files .fn{display:block;font-size:11.5px;color:var(--muted);word-break:bre
 .tag.via{background:var(--brand-soft);color:var(--brand)}
 .bad{color:var(--bad)}.good{color:var(--good)}
 .mono{font-variant-numeric:tabular-nums;color:var(--muted)}
+.selbar{font-size:12.5px;color:var(--muted);margin:14px 0 4px}
+.stale{color:#b47a00;font-size:12.5px;font-weight:600;margin-top:12px}
+.selbar a{color:var(--brand);text-decoration:none;font-weight:600}
+th.c,td.c{width:34px;text-align:center;padding-right:0}
+table.files tr.off td:not(.c){opacity:.45}
+table.files input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 .note{color:var(--muted);font-size:12.5px;max-width:340px}
 .hint{color:var(--muted);font-size:12.5px;margin:8px 0 2px}
 .sum{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:16px}
@@ -76,7 +82,7 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
 </head>
 <body>
 <div class="wrap">
-  <h1>Inbound SAP – Đối chiếu hóa đơn TRIMMINGVN <span class="ver">v6 · 28.08.2026</span></h1>
+  <h1>Inbound SAP – Đối chiếu hóa đơn TRIMMINGVN <span class="ver">v7 · 28.08.2026</span></h1>
   <p class="sub">Kéo cả thư mục (nhiều hóa đơn) vào đây. Công cụ tự nhận diện hóa đơn / packing list / file inbound, ghép thành từng bộ và đối chiếu. Chưa có inbound thì xuất <b>danh sách PO</b> để tạo trên SAP; chưa có packing list thì chỉ đối chiếu với hóa đơn. Mọi xử lý chạy trong trình duyệt.</p>
 
   <div class="card">
@@ -99,6 +105,7 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
       <label class="chk"><input type="checkbox" id="perReport"> Xuất thêm file báo cáo chi tiết cho từng hóa đơn</label>
       <label class="chk"><input type="checkbox" id="useQty"> Dùng cột Quantity khi Invoice Quantity còn trống</label>
     </div>
+    <div id="stale" class="stale"></div>
     <div id="dls"></div>
     <div id="log"></div>
     <details>
@@ -111,6 +118,7 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
         <li>Size packing list dạng <code>&lt;size nội bộ&gt;/&lt;size quốc tế&gt;</code>: <code>XS/XP</code>→XS, <code>S-DD/P-DD</code>→S-DD, <code>XL/XXL / XG/XXG</code>→XL/XXL.</li>
         <li>Giá trị: đơn giá hóa đơn vs <em>Gross Price</em>, thành tiền vs <code>Σ(Invoice Qty × Gross Price + Surcharge)</code> → lệch thì cảnh báo đỏ.</li>
         <li>File import SAP giữ nguyên cột &amp; sheet của template; mọi cột kiểm tra nằm ở file báo cáo riêng.</li>
+        <li>Chỉ các hóa đơn được <b>tick ở cột đầu bảng</b> mới được xuất. Khi bạn thả thêm file, công cụ tự chọn sẵn đúng hóa đơn vừa thêm.</li>
       </ul>
     </details>
   </div>
@@ -534,7 +542,7 @@ async function acceptFiles(fileList) {
   const list = [...fileList].filter(Boolean);
   if (!list.length || STATE.busy) return;
   $('#detect').textContent = `Đang nhận diện ${list.length} file…`;
-  const unknown = [];
+  const unknown = [], fresh = new Set();
   for (const f of list) {
     let c; try { c = await classify(f); } catch (e) { c = { kind: '', score: 0 }; }
     if (!c.kind) { unknown.push(f.name); continue; }
@@ -542,9 +550,18 @@ async function acceptFiles(fileList) {
     const key = f.name + '|' + dirOf(f) + '|' + f.size;
     if (STATE.items.some((x) => x.key === key)) continue;
     STATE.items.push({ file: f, kind: c.kind, dir: dirOf(f), key });
+    fresh.add(key);
   }
   $('#detect').textContent = unknown.length ? 'Không nhận diện được: ' + unknown.join(', ') : '';
   await buildGroups();
+  // chỉ chọn sẵn các hóa đơn vừa được bổ sung file (thêm inbound cho hóa đơn nào thì chạy hóa đơn đó)
+  const touched = STATE.groups.filter((g) => [g.inv, g.pkl, g.inb].some((x) => x && fresh.has(x.key)));
+  if (touched.length && touched.length < STATE.groups.length) {
+    STATE.groups.forEach((g) => { g.sel = false; });
+    touched.forEach((g) => { g.sel = true; });
+    $('#detect').textContent = ($('#detect').textContent ? $('#detect').textContent + ' · ' : '')
+      + `Đã chọn sẵn ${touched.length} hóa đơn vừa thêm file — tick thêm ở cột đầu nếu muốn xuất lại hóa đơn khác.`;
+  }
   renderSlots();
   if (!STATE.busy) return run();
 }
@@ -566,56 +583,91 @@ async function buildGroups() {
   for (const p of pkls) p.note = (await classify(p.file)).note;
 
   const nameHas = (f, tag) => tag && (f.name + ' ' + (f.webkitRelativePath || f._relPath || '')).includes(tag);
-  const pick = (inv, cands, extra) => {
-    let best = null, bestScore = 0;
-    for (const c of cands) {
-      if (c.used) continue;
-      const sameDir = inv.dir && c.dir && inv.dir === c.dir;
-      const byName = nameHas(c.file, inv.tag);
-      // đã tổ chức theo thư mục thì không ghép chéo thư mục (trừ khi tên file có số hóa đơn)
-      if (inv.dir && c.dir && !sameDir && !byName) continue;
-      let s = (sameDir ? 6 : 0) + (byName ? 3 : 0) + extra(inv, c);
-      if (s > bestScore) { bestScore = s; best = c; }
+  // ghép toàn cục: chấm điểm mọi cặp rồi gán từ cặp điểm cao nhất xuống,
+  // để một file không bị hóa đơn đứng trước "giành" mất
+  const assign = (cands, extra) => {
+    cands.forEach((c) => { c.used = false; });
+    const pairs = [];
+    for (const inv of invs) {
+      for (const c of cands) {
+        const sameDir = inv.dir && c.dir && inv.dir === c.dir;
+        const byName = nameHas(c.file, inv.tag);
+        // đã tổ chức theo thư mục thì không ghép chéo thư mục (trừ khi tên file có số hóa đơn)
+        if (inv.dir && c.dir && !sameDir && !byName) continue;
+        const s = (sameDir ? 6 : 0) + (byName ? 3 : 0) + extra(inv, c);
+        if (s > 0) pairs.push({ inv, c, s });
+      }
     }
-    if (best) best.used = true;
-    return bestScore > 0 ? best : null;
+    pairs.sort((a, b) => b.s - a.s);
+    const res = new Map();
+    for (const p of pairs) {
+      if (res.has(p.inv) || p.c.used) continue;
+      res.set(p.inv, p.c); p.c.used = true;
+    }
+    return res;
   };
-  pkls.forEach((p) => { p.used = false; });
-  inbs.forEach((p) => { p.used = false; });
+  const pklOf = assign(pkls, (a, b) => (a.note && b.note && a.note === b.note ? 4 : 0));
+  const inbOf = assign(inbs, (a, b) => {
+    const c = CACHE.get(b.file);
+    if (!c || !c.pos || !a.sapPos.length) return 0;
+    const hit = a.sapPos.filter((p) => c.pos.includes(p)).length;
+    return (hit / a.sapPos.length) * 3;
+  });
 
+  const prevSel = new Map((STATE.groups || []).map((g) => [g.inv.key, g.sel !== false]));
   STATE.groups = [];
   for (const it of invs) {
-    const pkl = pick(it, pkls, (a, b) => (a.note && b.note && a.note === b.note ? 4 : 0));
-    const inb = pick(it, inbs, (a, b) => {
-      const c = CACHE.get(b.file);
-      if (!c || !c.pos || !a.sapPos.length) return 0;
-      const hit = a.sapPos.filter((p) => c.pos.includes(p)).length;
-      return (hit / a.sapPos.length) * 3;
+    STATE.groups.push({
+      inv: it, pkl: pklOf.get(it) || null, inb: inbOf.get(it) || null,
+      sel: prevSel.has(it.key) ? prevSel.get(it.key) : true,
     });
-    STATE.groups.push({ inv: it, pkl, inb });
   }
   STATE.orphanPkl = pkls.filter((p) => !p.used);
   STATE.orphanInb = inbs.filter((p) => !p.used);
   STATE.poIdx = poIdx;
 }
 
+function selectedGroups() { return STATE.groups.filter((g) => g.sel); }
+
 function renderSlots() {
   const g = STATE.groups;
-  $('#count').textContent = `${g.length} hóa đơn · ${g.filter((x) => x.pkl).length} packing list · ${g.filter((x) => x.inb).length} inbound${STATE.po ? ' · có file PO' : ' · CHƯA có file PO'}`;
+  const n = selectedGroups().length;
+  $('#count').textContent = `${g.length} hóa đơn (chọn ${n}) · ${g.filter((x) => x.pkl).length} packing list · ${g.filter((x) => x.inb).length} inbound${STATE.po ? ' · có file PO' : ' · CHƯA có file PO'}`;
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
   if (!g.length) { $('#groups').innerHTML = ''; return; }
-  let h = '<table class="files"><thead><tr><th>Hóa đơn</th><th>Ngày</th><th class="n">Dòng</th><th>Packing list</th><th>File inbound</th></tr></thead><tbody>';
-  for (const x of g) {
-    h += `<tr><td><b>${esc(x.inv.inv.invNo || x.inv.file.name)}</b><span class="fn">${esc(x.inv.file.name)}</span></td>
+  let h = `<div class="selbar">Chọn hóa đơn để xuất:
+      <a href="#" data-sel="all">tất cả</a> ·
+      <a href="#" data-sel="none">bỏ chọn</a> ·
+      <a href="#" data-sel="inb">chỉ hóa đơn đã có inbound</a></div>`;
+  h += '<table class="files"><thead><tr><th class="c"><input type="checkbox" id="selAll"></th><th>Hóa đơn</th><th>Ngày</th><th class="n">Dòng</th><th>Packing list</th><th>File inbound</th></tr></thead><tbody>';
+  g.forEach((x, i) => {
+    h += `<tr class="${x.sel ? '' : 'off'}"><td class="c"><input type="checkbox" class="gsel" data-i="${i}"${x.sel ? ' checked' : ''}></td>
+      <td><b>${esc(x.inv.inv.invNo || x.inv.file.name)}</b><span class="fn">${esc(x.inv.file.name)}</span></td>
       <td>${esc(x.inv.inv.invDate)}</td><td class="n">${x.inv.inv.items.length}</td>
       <td>${x.pkl ? `<span class="ok2">✓</span> <span class="fn">${esc(x.pkl.file.name)}</span>` : '<span class="miss">chưa có</span>'}</td>
       <td>${x.inb ? `<span class="ok2">✓</span> <span class="fn">${esc(x.inb.file.name)}</span>` : '<span class="miss">chưa có</span>'}</td></tr>`;
-  }
+  });
   h += '</tbody></table>';
   if (STATE.orphanPkl.length || STATE.orphanInb.length) {
     h += `<div class="hint">Không ghép được với hóa đơn nào: ${[...STATE.orphanPkl, ...STATE.orphanInb].map((x) => esc(x.file.name)).join(', ')}</div>`;
   }
   $('#groups').innerHTML = h;
+  $('#selAll').checked = n === g.length;
+  const selKey = selectedGroups().map((x) => x.inv.key).join('|');
+  $('#stale').textContent = (OUTPUTS.length && STATE.lastRunSel !== undefined && STATE.lastRunSel !== selKey)
+    ? '⚠ Danh sách chọn đã thay đổi — bấm "Đối chiếu & xuất file" để cập nhật các file bên dưới.' : '';
+  $('#groups').querySelectorAll('.gsel').forEach((cb) => {
+    cb.addEventListener('change', (e) => { STATE.groups[+e.target.dataset.i].sel = e.target.checked; renderSlots(); });
+  });
+  $('#selAll').addEventListener('change', (e) => { STATE.groups.forEach((x) => { x.sel = e.target.checked; }); renderSlots(); });
+  $('#groups').querySelectorAll('[data-sel]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const m = e.target.dataset.sel;
+      STATE.groups.forEach((x) => { x.sel = m === 'all' ? true : m === 'none' ? false : !!x.inb; });
+      renderSlots();
+    });
+  });
 }
 
 /* ================= Phân tích 1 hóa đơn ================= */
@@ -826,6 +878,8 @@ function fillSapWorkbook(ws, H, rows, inv, onlyMatched) {
 async function run() {
   if (STATE.busy) return;
   if (!STATE.groups.length) { log('Chưa có hóa đơn nào.', 'err'); return; }
+  const groups = selectedGroups();
+  if (!groups.length) { log('Chưa chọn hóa đơn nào — tick ở cột đầu của bảng.', 'err'); return; }
   STATE.busy = true; $('#run').disabled = true; $('#runpo').disabled = true;
   $('#log').innerHTML = ''; $('#report').innerHTML = ''; $('#dls').innerHTML = '';
   OUTPUTS.length = 0;
@@ -838,7 +892,7 @@ async function run() {
     const perInvoiceReport = $('#perReport').checked;
     const all = [];
 
-    for (const g of STATE.groups) {
+    for (const g of groups) {
       const inv = g.inv.inv;
       log(`── Hóa đơn ${inv.invNo || g.inv.file.name} (${inv.items.length} dòng)${g.pkl ? '' : ' — không có packing list'}${g.inb ? '' : ' — CHƯA CÓ INBOUND'}`);
       const pklGroups = g.pkl ? parsePacking((await classify(g.pkl.file)).lines) : null;
@@ -888,7 +942,9 @@ async function run() {
       invTotal: a.VAL.invTotal, inbTotal: a.VAL.inbTotal, valueBad: a.VAL.valueBad,
       lines: a.lines.map((l) => ({ code: l.it.code, po: l.it.po, via: l.it.poVia, sapPo: l.sapPo, invQty: l.it.qty, inbQty: l.base, pklQty: l.pklTotal, status: l.status })),
     }));
-    log('Hoàn tất.', 'ok');
+    STATE.lastRunSel = groups.map((x) => x.inv.key).join('|');
+    $('#stale').textContent = '';
+    log(`Hoàn tất — đã xử lý ${groups.length}/${STATE.groups.length} hóa đơn.`, 'ok');
   } catch (e) {
     log('Lỗi: ' + (e && e.message ? e.message : e), 'err');
     console.error(e);
@@ -901,12 +957,14 @@ async function run() {
 async function runPoList() {
   if (STATE.busy) return;
   if (!STATE.groups.length) { log('Chưa có hóa đơn nào.', 'err'); return; }
+  const groups = selectedGroups();
+  if (!groups.length) { log('Chưa chọn hóa đơn nào — tick ở cột đầu của bảng.', 'err'); return; }
   STATE.busy = true; $('#runpo').disabled = true;
   try {
     const po = STATE.poIdx;
     const map = new Map();       // sapPo -> {sap, scax, invs:Set, qty, amount}
     const unresolved = [];
-    for (const g of STATE.groups) {
+    for (const g of groups) {
       const inv = g.inv.inv;
       for (const it of inv.items) {
         const rp = po ? resolvePo(it, { scax: po.map, sap: po.sap }) : { scax: it.po || '', sap: '', via: '' };
@@ -935,7 +993,7 @@ async function runPoList() {
     d.addRow(['PO No.', 'PO No ScaX', 'Hóa đơn', 'Ngày', 'Item', 'SL', 'Thành tiền', 'Ghi chú']);
     d.getRow(1).font = { bold: true };
     d.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDEBF7' } };
-    for (const g of STATE.groups) {
+    for (const g of groups) {
       const inv = g.inv.inv;
       for (const it of inv.items) {
         const rp = po ? resolvePo(it, { scax: po.map, sap: po.sap }) : { scax: '', sap: '', via: '' };
@@ -951,9 +1009,9 @@ async function runPoList() {
       unresolved.forEach((x) => u.addRow([x.invNo, x.code, x.po, x.qty]));
     }
     OUTPUTS.length = 0;
-    await addDownload(wb, `DANHSACH_PO_${new Date().toISOString().slice(0, 10)}.xlsx`, `Danh sách PO (${list.length} PO / ${STATE.groups.length} hóa đơn)`, 'main');
+    await addDownload(wb, `DANHSACH_PO_${new Date().toISOString().slice(0, 10)}.xlsx`, `Danh sách PO (${list.length} PO / ${groups.length} hóa đơn)`, 'main');
     renderDownloads();
-    log(`Danh sách PO: ${list.length} PO từ ${STATE.groups.length} hóa đơn` + (unresolved.length ? ` — ${unresolved.length} dòng không tra được PO` : ''), 'ok');
+    log(`Danh sách PO: ${list.length} PO từ ${groups.length} hóa đơn được chọn` + (unresolved.length ? ` — ${unresolved.length} dòng không tra được PO` : ''), 'ok');
     renderPoTable(list, unresolved);
   } catch (e) {
     log('Lỗi: ' + (e && e.message ? e.message : e), 'err');
@@ -1244,6 +1302,7 @@ document.addEventListener('drop', onDrop);
 $('#run').addEventListener('click', run);
 $('#runpo').addEventListener('click', runPoList);
 $('#clear').addEventListener('click', () => {
+  STATE.busy = false;
   STATE.items = []; STATE.groups = []; STATE.po = null; STATE.poIdx = null;
   OUTPUTS.length = 0;
   $('#report').innerHTML = ''; $('#log').innerHTML = ''; $('#dls').innerHTML = ''; $('#groups').innerHTML = ''; $('#detect').textContent = '';
