@@ -14,66 +14,61 @@
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 90px}
 h1{font-size:22px;margin:0 0 4px}
 .ver{display:inline-block;vertical-align:middle;margin-left:8px;padding:2px 9px;border-radius:20px;background:var(--brand-soft);color:var(--brand);font-size:12px;font-weight:700;letter-spacing:.02em}
 .sub{color:var(--muted);margin:0 0 24px;font-size:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-.drop{border:1.5px dashed var(--line);border-radius:10px;padding:14px;cursor:pointer;transition:.15s;background:transparent}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:30px 18px;cursor:pointer;transition:.15s;text-align:center}
 .drop:hover,.drop.drag{border-color:var(--brand);background:var(--brand-soft)}
-.drop.has{border-style:solid;border-color:var(--brand)}
-.drop .t{font-weight:600;font-size:14px}
-.drop .d{color:var(--muted);font-size:12.5px;margin-top:2px}
-.drop .fname{display:block;margin-top:8px;font-size:12.5px;color:var(--brand);word-break:break-all}
-.drop input,.slot input{display:none}
-.drop.big{padding:30px 18px;text-align:center;border-width:2px}
-.drop.big .t{font-size:16px}
-.drop.big .d{margin-top:6px}
-.slots{margin-top:12px}
-.slot{border:1px solid var(--line);border-radius:9px;padding:9px 12px;cursor:pointer;background:transparent;transition:.15s}
-.slot:hover{border-color:var(--brand)}
-.slot.has{border-color:var(--brand);background:var(--brand-soft)}
-.slot b{display:block;font-size:12.5px}
-.slot .fname{display:block;font-size:12px;color:var(--muted);word-break:break-all;margin-top:2px}
-.slot.has .fname{color:var(--brand)}
-.row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px}
-button{background:var(--brand);color:#fff;border:0;border-radius:9px;padding:11px 20px;font-size:15px;font-weight:600;cursor:pointer}
+.drop .t{font-weight:700;font-size:16px}
+.drop .d{color:var(--muted);font-size:13px;margin-top:6px}
+.drop input{display:none}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}
+button{background:var(--brand);color:#fff;border:0;border-radius:9px;padding:11px 18px;font-size:14.5px;font-weight:600;cursor:pointer}
+button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
 button:disabled{opacity:.5;cursor:default}
 label.chk{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);cursor:pointer}
-#dl,#dl2{display:inline-block;background:var(--good);color:#fff;text-decoration:none;border-radius:9px;padding:11px 20px;font-weight:600}
-#dl2{background:transparent;color:var(--good);border:1.5px solid var(--good)}
+#dls{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+a.dl{display:inline-block;background:var(--good);color:#fff;text-decoration:none;border-radius:9px;padding:9px 16px;font-weight:600;font-size:13.5px;width:fit-content}
+a.dl.alt{background:transparent;color:var(--good);border:1.5px solid var(--good)}
 .hidden{display:none}
-#log{font:12.5px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;max-height:190px;overflow:auto;margin-top:14px;color:var(--muted)}
+#log{font:12.5px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;max-height:230px;overflow:auto;margin-top:14px;color:var(--muted);white-space:pre-wrap}
 .logline.ok{color:var(--good)}
 .logline.err{color:var(--bad)}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:600}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:600}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 tr.warn>td{background:var(--warn)}
-tr.sub>td{background:transparent;padding-top:0}
 table.inner{width:auto;min-width:420px;border:1px solid var(--line);border-radius:8px;margin:6px 0 10px}
-table.inner th,table.inner td{padding:5px 10px;font-size:12.5px}
-.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:700}
+table.files .fn{display:block;font-size:11.5px;color:var(--muted);word-break:break-all}
+.ok2{color:var(--good);font-weight:700}
+.miss{color:var(--bad)}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
 .tag.good{background:rgba(15,123,79,.14);color:var(--good)}
 .tag.bad{background:rgba(192,57,43,.14);color:var(--bad)}
+.tag.warnt{background:rgba(217,144,0,.16);color:#b47a00}
+.tag.via{background:var(--brand-soft);color:var(--brand)}
 .bad{color:var(--bad)}.good{color:var(--good)}
-.note{color:var(--muted);font-size:12.5px;max-width:380px}
-.hint{color:var(--muted);font-size:12.5px;margin:6px 0 2px}
-.alert{border:2px solid var(--bad);background:rgba(192,57,43,.08);border-radius:10px;padding:14px 16px;margin-bottom:18px}
-.alert .ttl{font-size:16px;font-weight:800;color:var(--bad);letter-spacing:.01em}
-.alert .lines{display:flex;gap:22px;flex-wrap:wrap;margin-top:8px;font-size:13.5px}
-.alert .lines b{font-variant-numeric:tabular-nums}
-.alert .li{margin-top:6px;font-size:13px;color:var(--ink)}
-.alert.warn2{border-color:#d99000;background:rgba(217,144,0,.09)}
-.alert.warn2 .ttl{color:#b47a00;font-size:14.5px}
+.mono{font-variant-numeric:tabular-nums;color:var(--muted)}
+.note{color:var(--muted);font-size:12.5px;max-width:340px}
+.hint{color:var(--muted);font-size:12.5px;margin:8px 0 2px}
 .sum{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:16px}
 .sum div{display:flex;flex-direction:column}
 .sum span{font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
 .sum b{font-size:17px}
+.alert{border:2px solid var(--bad);background:rgba(192,57,43,.08);border-radius:10px;padding:12px 14px;margin:10px 0}
+.alert .ttl{font-size:15px;font-weight:800;color:var(--bad)}
+.alert .lines{display:flex;gap:20px;flex-wrap:wrap;margin-top:7px;font-size:13px}
+.alert .li{margin-top:5px;font-size:12.5px}
+details.inv{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:10px;background:var(--card)}
+details.inv.bad{border-color:var(--bad)}
+details.inv.warn{border-color:#d99000}
+details.inv summary{cursor:pointer;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+details.inv table{margin-top:10px}
 details{margin-top:10px}
-summary{cursor:pointer;color:var(--muted);font-size:13px}
+summary{cursor:pointer}
 ul.rules{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:13px}
 ul.rules li{margin:3px 0}
 code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12.5px}
@@ -81,42 +76,41 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
 </head>
 <body>
 <div class="wrap">
-  <h1>Inbound SAP – Đối chiếu hóa đơn TRIMMINGVN <span class="ver">v4 · 27.08.2026</span></h1>
-  <p class="sub">Tải lên 4 file, công cụ xuất ra <b>2 file</b>: file import SAP (giữ nguyên cột &amp; sheet của template, chỉ điền số/ngày hóa đơn) và file báo cáo riêng (thêm cột Amount, Balance và các cột đối chiếu). Mọi xử lý chạy ngay trong trình duyệt – không có dữ liệu nào được gửi lên máy chủ.</p>
+  <h1>Inbound SAP – Đối chiếu hóa đơn TRIMMINGVN <span class="ver">v6 · 28.08.2026</span></h1>
+  <p class="sub">Kéo cả thư mục (nhiều hóa đơn) vào đây. Công cụ tự nhận diện hóa đơn / packing list / file inbound, ghép thành từng bộ và đối chiếu. Chưa có inbound thì xuất <b>danh sách PO</b> để tạo trên SAP; chưa có packing list thì chỉ đối chiếu với hóa đơn. Mọi xử lý chạy trong trình duyệt.</p>
 
   <div class="card">
-    <div class="drop big" id="dropall">
-      <div class="t">Kéo–thả cả 4 file vào đây (hoặc bấm để chọn cùng lúc)</div>
-      <div class="d">Hóa đơn .pdf · Packing list .pdf · File inbound .xlsx · PO SCAF-SCAX .xlsx — công cụ tự nhận diện từng file</div>
+    <div class="drop" id="dropall">
+      <div class="t">Kéo–thả thư mục hoặc nhiều file vào đây</div>
+      <div class="d">Hóa đơn .pdf · Packing list .pdf · File inbound .xlsx · PO SCAF-SCAX .xlsx — nhận diện theo nội dung, không theo tên file</div>
       <input type="file" multiple accept=".pdf,.xlsx,.xlsm">
     </div>
-    <div class="grid slots">
-      <div class="slot" id="slot-inv"><b>Hóa đơn</b><span class="fname">chưa có</span><input type="file" accept=".pdf"></div>
-      <div class="slot" id="slot-pkl"><b>Packing list</b><span class="fname">chưa có</span><input type="file" accept=".pdf"></div>
-      <div class="slot" id="slot-inb"><b>File inbound</b><span class="fname">chưa có</span><input type="file" accept=".xlsx,.xlsm"></div>
-      <div class="slot" id="slot-po"><b>PO SCAF-SCAX</b><span class="fname">chưa có</span><input type="file" accept=".xlsx,.xlsm"></div>
-    </div>
     <div id="detect" class="hint"></div>
+    <div id="groups"></div>
     <div class="row">
-      <button id="run" disabled>Xử lý &amp; xuất file</button>
+      <button id="runpo">Xuất danh sách PO</button>
+      <button id="run">Đối chiếu &amp; xuất file</button>
+      <button id="dlall" class="ghost hidden">Tải tất cả</button>
+      <button id="clear" class="ghost">Xóa danh sách</button>
       <span id="count" class="hint"></span>
-      <a id="dl" class="hidden" href="#">⬇ File import SAP</a>
-      <a id="dl2" class="hidden alt" href="#">⬇ File báo cáo</a>
-      <label class="chk"><input type="checkbox" id="onlyMatched" checked> File import SAP chỉ giữ các dòng thuộc hóa đơn này</label>
     </div>
+    <div class="row" style="margin-top:8px">
+      <label class="chk"><input type="checkbox" id="onlyMatched" checked> File import SAP chỉ giữ các dòng thuộc hóa đơn</label>
+      <label class="chk"><input type="checkbox" id="perReport"> Xuất thêm file báo cáo chi tiết cho từng hóa đơn</label>
+      <label class="chk"><input type="checkbox" id="useQty"> Dùng cột Quantity khi Invoice Quantity còn trống</label>
+    </div>
+    <div id="dls"></div>
     <div id="log"></div>
     <details>
-      <summary>Quy tắc xử lý</summary>
+      <summary class="hint">Quy tắc xử lý</summary>
       <ul class="rules">
-        <li>Số hóa đơn: ghép <em>Ký hiệu</em> + <code>#</code> + <em>Số</em> đệm 8 chữ số → <code>1C26TVN#00002086</code>.</li>
-        <li>Ngày hóa đơn: theo dạng <code>dd.mm.yyyy</code> (ghi dạng text để SAP không tự đổi định dạng).</li>
-        <li>PO: lấy mã PO trong dòng mô tả hóa đơn → tra cột <em>PO No ScaX</em> (ví dụ <code>TRIMMINGVN-0725</code>) → ra <em>PO No.</em> <code>TRI0004600</code>. Nếu không thấy ở cột ScaX thì dò tiếp cột <em>PO No.</em> — trường hợp PO đã là ScaF sẵn (ví dụ hóa đơn ghi thẳng <code>TRI0005800</code>) → dùng luôn mã đó. Sau đó lọc cột A của file inbound.</li>
-        <li>Item: lấy mã <code>LB xxxx</code> trong dòng mô tả → tìm trong <em>Material Description</em> / <em>Specification</em>, cộng dồn số lượng theo PO đó rồi so với số lượng hóa đơn.</li>
-        <li>Nếu lệch: lấy mã invoice của packing list trong <em>Specification</em> (ví dụ <code>54A2</code>) rồi đối chiếu từng nhóm size với packing list để chỉ ra size bị lệch.</li>
-        <li>File import SAP: giữ nguyên 100% cột và sheet của template, chỉ điền <em>Invoice Number</em> và <em>Invoice date</em>.</li>
-        <li>File báo cáo (riêng): các dòng của file inbound + cột <code>Amount = Invoice Qty × Gross Price + Surcharge Item</code> (<code>=V*M+N</code>), <code>Balance = Quantity − (Invoice Qty + Delivered Qty)</code> (<code>=R-(V+S)</code>), các cột đối chiếu và sheet <em>BAO CAO</em>.</li>
-        <li>Dòng để trống Invoice Number là dòng của PO/item <b>không nằm trong hóa đơn này</b> (mặt hàng khác trên cùng PO) — công cụ chỉ điền đúng các dòng thuộc hóa đơn.</li>
-        <li>Dòng có trong hóa đơn nhưng thiếu hẳn trong file inbound: chỉ báo cáo (kèm số liệu lấy từ file PO), không tự thêm dòng.</li>
+        <li>Ghép bộ: cùng thư mục → tên file chứa số hóa đơn → cùng số <em>Despatch Note</em> (packing list) → trùng PO nhiều nhất (inbound).</li>
+        <li>Số hóa đơn: ký hiệu + <code>#</code> + số đệm 8 chữ số → <code>1C26TVN#00002086</code>; ngày dạng <code>dd.mm.yyyy</code> ghi text.</li>
+        <li>PO: mã trong dòng mô tả hóa đơn → tra cột <em>PO No ScaX</em>; không thấy thì dò cột <em>PO No.</em> (PO đã là ScaF) → lọc cột A file inbound.</li>
+        <li>Item: mã <code>LB xxxx</code> → tìm trong <em>Material Description</em>/<em>Specification</em>, cộng dồn theo PO, so với SL hóa đơn.</li>
+        <li>Size packing list dạng <code>&lt;size nội bộ&gt;/&lt;size quốc tế&gt;</code>: <code>XS/XP</code>→XS, <code>S-DD/P-DD</code>→S-DD, <code>XL/XXL / XG/XXG</code>→XL/XXL.</li>
+        <li>Giá trị: đơn giá hóa đơn vs <em>Gross Price</em>, thành tiền vs <code>Σ(Invoice Qty × Gross Price + Surcharge)</code> → lệch thì cảnh báo đỏ.</li>
+        <li>File import SAP giữ nguyên cột &amp; sheet của template; mọi cột kiểm tra nằm ở file báo cáo riêng.</li>
       </ul>
     </details>
   </div>
@@ -147,7 +141,6 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
   Promise.all([loadScript(b64blob('lib-exceljs',JS)),loadScript(b64blob('lib-pdfjs',JS))]).then(function(){
     window.pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(b64blob('lib-pdfworker',JS));
     var s=document.createElement('script');s.textContent=document.getElementById('app-src').textContent;document.body.appendChild(s);
-    document.getElementById('run').disabled=false;
   }).catch(function(e){alert('Không tải được thư viện: '+e);});
 })();
 </script>
@@ -233,9 +226,7 @@ function parseInvoice(lines) {
   const vat = g(/Ti[ềe]n thu[ếe] GTGT[^:]{0,30}:?\s*([\d.,]+)/i);
   const payment = g(/T[ổo]ng c[ộo]ng ti[ềe]n thanh to[áa]n[^:]{0,30}:?\s*([\d.,]+)/i);
 
-  // line items
-  const reCode = /\b([A-Z]{2,3})\s*(\d{3,6})\s*\/\//;
-  const reCodeAlt = /\b([A-Z]{2,3})\s*(\d{3,6})\b/;
+  // line items — mã hàng nằm giữa dấu "/" đầu tiên và "//": "… / LB 5873 // TRIMMINGVN-0725"
   const rePo = /\b([A-Z]{4,}(?:VN)?)-(\d{3,5})\b/;
   const reQty = /(?:C[áa]i|PCS|Pcs|Chi[ếe]c|PC)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)/;
 
@@ -244,12 +235,27 @@ function parseInvoice(lines) {
   const startIdx = lines.findIndex((l) => /T[êe]n h[àa]ng h[óo]a|Description/i.test(l));
   const body = startIdx >= 0 ? lines.slice(startIdx) : lines;
 
+  let frag = null;
   for (const L of body) {
     if (/C[ộo]ng ti[ềe]n h[àa]ng|Total amount/i.test(L)) break;
-    let mc = L.match(reCode);
-    if (!mc && /\/\//.test(L)) mc = L.match(reCodeAlt);
-    const isCode = mc && !/T[êe]n h[àa]ng/i.test(L);
-    if (isCode) { pendingCode = (mc[1] + ' ' + mc[2]).trim(); cur = null; buf = [L]; }
+    // mã hàng nằm giữa "/" và "//", có thể bị xuống dòng: "… / LM-" ⏎ "RFIDST22 // TRIMMINGVN-0708"
+    let code = null;
+    const k = L.indexOf('//');
+    if (k >= 0) {
+      const pre = L.slice(0, k);
+      if (pre.includes('/')) code = pre.replace(/^[^\/]*\//, '').trim();
+      else if (frag) code = (/-$/.test(frag) ? frag + pre.trim() : frag + ' ' + pre.trim()).trim();
+      frag = null;
+    } else if (L.includes('/')) {
+      const tail = L.slice(L.lastIndexOf('/') + 1).trim();
+      if (tail && tail.length <= 40) frag = tail;
+    }
+    const isCode = code && !/T[êe]n h[àa]ng/i.test(L) && code.length <= 40;
+    if (isCode) {
+      const last = items.length ? items[items.length - 1] : null;
+      if (last && !last.code) { last.code = code; last.text += ' ' + L; }   // mã hàng nằm sau dòng số lượng
+      else { pendingCode = code; cur = null; buf = [L]; }
+    }
 
     const mq = L.match(reQty);
     if (mq) {
@@ -271,6 +277,22 @@ function parseInvoice(lines) {
     }
   }
   return { serial, no, invNo, invDate, items, total, vat, payment };
+}
+
+/* Các dạng viết khác nhau của cùng một mã hàng, từ chi tiết nhất đến chung nhất.
+   "LB 07780 C/1" → LB07780C/1 · LB7780C1 · LB7780C01 · LB7780 · LB07780      */
+function codeVariants(raw) {
+  const s = norm(raw);
+  const out = [s];
+  const m = String(raw || '').trim().match(/^([A-Za-z]+)\s*0*(\d+)\s*(.*)$/);
+  if (m) {
+    const pre = m[1].toUpperCase(), num = m[2], suf = norm(m[3]);
+    const nz = String(Number(num));
+    const bases = [...new Set([pre + nz, pre + num, pre + nz.padStart(4, '0'), pre + nz.padStart(5, '0')])];
+    if (suf) for (const b of bases) out.push(b + suf, b + suf.replace(/\//g, ''), b + suf.replace(/\//g, '0'));
+    out.push(...bases);
+  }
+  return [...new Set(out.filter((x) => x.length >= 3))];
 }
 
 /* Tra PO: ưu tiên PO ScaX (TRIMMINGVN-xxxx), nếu không có thì thử PO ScaF (mã PO No. trong file PO) */
@@ -336,6 +358,11 @@ function parsePacking(lines) {
   // đọc bảng size trên toàn bộ text của nhóm (size + số lượng có thể nằm ở 2–3 dòng khác nhau)
   for (const g of groups) {
     const t = g.text.replace(/\s+/g, ' ');
+    // PO khách hàng có thể bị tách dòng: "PO TRIMMINGVN … -0730"
+    if (!g.po) {
+      const mp = t.match(/\b([A-Z]{5,})\b[\s\S]{0,150}?[-–]\s*(\d{3,5})\b/);
+      if (mp && !/^(PACKING|DESPATCH|INVOICE|LABEL)$/.test(mp[1])) g.po = mp[1] + '-' + mp[2];
+    }
     const add = (code, rawSize, q) => {
       const s = sizeKey(rawSize);
       if (!s || isNaN(q)) return false;
@@ -407,13 +434,36 @@ function readPoWb(wb) {
   return { map, sap, rows };
 }
 
-/* ================= Nhận diện file ================= */
-const FILES = { inb: null, inv: null, pkl: null, po: null };
+
+/* ================= Nhận diện & gom nhóm file ================= */
 const KIND_NAME = { inb: 'File inbound', inv: 'Hóa đơn', pkl: 'Packing list', po: 'PO SCAF-SCAX' };
 const CACHE = new WeakMap();
+const STATE = { po: null, items: [], groups: [], busy: false };
 let RESULT = null;
 
 const hits = (t, arr) => arr.reduce((n, s) => n + (t.includes(s) ? 1 : 0), 0);
+const dirOf = (f) => {
+  const p = f.webkitRelativePath || f._relPath || '';
+  const i = p.lastIndexOf('/');
+  return i > 0 ? p.slice(0, i) : '';
+};
+
+function headerIndex(ws) {
+  const vals = ws.getRow(1).values || [];
+  const H = {};
+  for (let i = 1; i < vals.length; i++) {
+    const v = String(vals[i] == null ? '' : vals[i]).replace(/\s+/g, ' ').trim().toLowerCase();
+    if (v) H[v] = i;
+  }
+  const pick = (...names) => { for (const n of names) if (H[n]) return H[n]; return 0; };
+  return {
+    po: pick('purchasing document'), material: pick('material'), desc: pick('material description'),
+    size: pick('size'), spec: pick('specification'), price: pick('gross price'), sur: pick('surcharge item'),
+    qty: pick('quantity'), deliv: pick('delivered qty'), invQty: pick('invoice quantity'),
+    invNo: pick('invoice number'), invDate: pick('invoice date'),
+    last: Math.max(...Object.values(H), 1),
+  };
+}
 
 async function classify(file) {
   if (CACHE.has(file)) return CACHE.get(file);
@@ -424,7 +474,9 @@ async function classify(file) {
     const t = lines.join(' ').toUpperCase();
     const sInv = hits(t, ['HÓA ĐƠN GIÁ TRỊ GIA TĂNG', 'VAT INVOICE', 'KÝ HIỆU', 'TIỀN THUẾ', 'NGƯỜI BÁN HÀNG', 'ĐVT']);
     const sPkl = hits(t, ['PACKING LIST', 'DESPATCH NOTE', 'LABEL REF', 'CTN NO', 'OUR REF', 'DELIVERY METHOD']);
-    out = { kind: sInv === 0 && sPkl === 0 ? '' : (sInv >= sPkl ? 'inv' : 'pkl'), score: Math.max(sInv, sPkl), lines };
+    const kind = sInv === 0 && sPkl === 0 ? '' : (sInv >= sPkl ? 'inv' : 'pkl');
+    const note = (t.match(/(?:GHI CHÚ \(NOTE\)\s*:|DESPATCH NOTE\s*:?)\s*([A-Z]{2}[A-Z0-9]{5,})/) || [])[1] || '';
+    out = { kind, score: Math.max(sInv, sPkl), lines, note };
   } else if (/\.xls[xm]$/.test(name)) {
     const buf = await file.arrayBuffer();
     const wb = new ExcelJS.Workbook();
@@ -437,170 +489,196 @@ async function classify(file) {
     const t = (head + ' ' + wb.worksheets.map((w) => w.name).join(' ')).replace(/\s+/g, ' ').toLowerCase();
     const sPo = hits(t, ['po no scax', 'po follow up', 'order quantity', 'agreed lead-time', 'pr no.']);
     const sInb = hits(t, ['purchasing document', 'invoice quantity', 'over tolerance qty', 'act. gds mvmnt date', 'external delivery id']);
-    out = { kind: sPo === 0 && sInb === 0 ? '' : (sPo >= sInb ? 'po' : 'inb'), score: Math.max(sPo, sInb), buf, wb };
-  } else {
-    out = { kind: '', score: 0 };
-  }
+    const kind = sPo === 0 && sInb === 0 ? '' : (sPo >= sInb ? 'po' : 'inb');
+    if (kind === 'inb') {
+      const H = headerIndex(ws);
+      const pos = new Set();
+      for (let r = 2; r <= ws.rowCount; r++) {
+        const v = ws.getCell(r, H.po).text.trim().toUpperCase();
+        if (v) pos.add(v);
+      }
+      out = { kind, score: sInb, buf, pos: [...pos] };   // không giữ workbook để đỡ tốn bộ nhớ
+    } else {
+      out = { kind, score: sPo, buf, wb };
+    }
+  } else out = { kind: '', score: 0 };
   CACHE.set(file, out);
   return out;
 }
 
-async function acceptFiles(fileList, forceKind) {
+/* đọc cả thư mục khi kéo–thả */
+async function filesFromDataTransfer(dt) {
+  const out = [];
+  const items = dt.items ? [...dt.items] : [];
+  const entries = items.map((i) => (i.webkitGetAsEntry ? i.webkitGetAsEntry() : null)).filter(Boolean);
+  if (!entries.length) return [...dt.files];
+  const walk = async (entry, path) => {
+    if (entry.isFile) {
+      const f = await new Promise((res, rej) => entry.file(res, rej));
+      try { Object.defineProperty(f, '_relPath', { value: path + f.name, configurable: true }); } catch (e) { /* bỏ qua */ }
+      out.push(f);
+    } else if (entry.isDirectory) {
+      const reader = entry.createReader();
+      let batch;
+      do {
+        batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+        for (const e of batch) await walk(e, path + entry.name + '/');
+      } while (batch.length);
+    }
+  };
+  for (const e of entries) await walk(e, '');
+  return out;
+}
+
+async function acceptFiles(fileList) {
   const list = [...fileList].filter(Boolean);
-  if (!list.length) return;
-  if (forceKind) { FILES[forceKind] = list[0]; await classify(list[0]).catch(() => {}); renderSlots(); return maybeAuto(); }
-  $('#detect').textContent = 'Đang nhận diện ' + list.length + ' file…';
+  if (!list.length || STATE.busy) return;
+  $('#detect').textContent = `Đang nhận diện ${list.length} file…`;
   const unknown = [];
   for (const f of list) {
-    let c;
-    try { c = await classify(f); } catch (e) { c = { kind: '', score: 0 }; }
+    let c; try { c = await classify(f); } catch (e) { c = { kind: '', score: 0 }; }
     if (!c.kind) { unknown.push(f.name); continue; }
-    const cur = FILES[c.kind];
-    if (cur && cur !== f) {
-      const curScore = (CACHE.get(cur) || {}).score || 0;
-      if (curScore > c.score) { unknown.push(f.name); continue; }
-    }
-    FILES[c.kind] = f;
+    if (c.kind === 'po') { STATE.po = f; continue; }
+    const key = f.name + '|' + dirOf(f) + '|' + f.size;
+    if (STATE.items.some((x) => x.key === key)) continue;
+    STATE.items.push({ file: f, kind: c.kind, dir: dirOf(f), key });
   }
+  $('#detect').textContent = unknown.length ? 'Không nhận diện được: ' + unknown.join(', ') : '';
+  await buildGroups();
   renderSlots();
-  $('#detect').textContent = unknown.length ? 'Không nhận diện được: ' + unknown.join(', ') + ' — hãy bấm vào ô tương ứng để chọn thủ công.' : '';
-  return maybeAuto();
+  if (!STATE.busy) return run();
+}
+
+/* Ghép hóa đơn ↔ packing list ↔ inbound */
+async function buildGroups() {
+  const invs = STATE.items.filter((x) => x.kind === 'inv');
+  const pkls = STATE.items.filter((x) => x.kind === 'pkl');
+  const inbs = STATE.items.filter((x) => x.kind === 'inb');
+  const poIdx = STATE.po ? readPoWb((await classify(STATE.po)).wb) : null;
+
+  for (const it of invs) {
+    const c = await classify(it.file);
+    it.inv = parseInvoice(c.lines);
+    it.note = c.note;
+    it.tag = (it.inv.no || '').replace(/^0+/, '');
+    it.sapPos = [...new Set(it.inv.items.map((x) => (poIdx ? resolvePo(x, { scax: poIdx.map, sap: poIdx.sap }).sap : '')).filter(Boolean))];
+  }
+  for (const p of pkls) p.note = (await classify(p.file)).note;
+
+  const nameHas = (f, tag) => tag && (f.name + ' ' + (f.webkitRelativePath || f._relPath || '')).includes(tag);
+  const pick = (inv, cands, extra) => {
+    let best = null, bestScore = 0;
+    for (const c of cands) {
+      if (c.used) continue;
+      const sameDir = inv.dir && c.dir && inv.dir === c.dir;
+      const byName = nameHas(c.file, inv.tag);
+      // đã tổ chức theo thư mục thì không ghép chéo thư mục (trừ khi tên file có số hóa đơn)
+      if (inv.dir && c.dir && !sameDir && !byName) continue;
+      let s = (sameDir ? 6 : 0) + (byName ? 3 : 0) + extra(inv, c);
+      if (s > bestScore) { bestScore = s; best = c; }
+    }
+    if (best) best.used = true;
+    return bestScore > 0 ? best : null;
+  };
+  pkls.forEach((p) => { p.used = false; });
+  inbs.forEach((p) => { p.used = false; });
+
+  STATE.groups = [];
+  for (const it of invs) {
+    const pkl = pick(it, pkls, (a, b) => (a.note && b.note && a.note === b.note ? 4 : 0));
+    const inb = pick(it, inbs, (a, b) => {
+      const c = CACHE.get(b.file);
+      if (!c || !c.pos || !a.sapPos.length) return 0;
+      const hit = a.sapPos.filter((p) => c.pos.includes(p)).length;
+      return (hit / a.sapPos.length) * 3;
+    });
+    STATE.groups.push({ inv: it, pkl, inb });
+  }
+  STATE.orphanPkl = pkls.filter((p) => !p.used);
+  STATE.orphanInb = inbs.filter((p) => !p.used);
+  STATE.poIdx = poIdx;
 }
 
 function renderSlots() {
-  for (const k of Object.keys(FILES)) {
-    const el = $('#slot-' + k);
-    el.querySelector('.fname').textContent = FILES[k] ? FILES[k].name : 'chưa có';
-    el.classList.toggle('has', !!FILES[k]);
+  const g = STATE.groups;
+  $('#count').textContent = `${g.length} hóa đơn · ${g.filter((x) => x.pkl).length} packing list · ${g.filter((x) => x.inb).length} inbound${STATE.po ? ' · có file PO' : ' · CHƯA có file PO'}`;
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  if (!g.length) { $('#groups').innerHTML = ''; return; }
+  let h = '<table class="files"><thead><tr><th>Hóa đơn</th><th>Ngày</th><th class="n">Dòng</th><th>Packing list</th><th>File inbound</th></tr></thead><tbody>';
+  for (const x of g) {
+    h += `<tr><td><b>${esc(x.inv.inv.invNo || x.inv.file.name)}</b><span class="fn">${esc(x.inv.file.name)}</span></td>
+      <td>${esc(x.inv.inv.invDate)}</td><td class="n">${x.inv.inv.items.length}</td>
+      <td>${x.pkl ? `<span class="ok2">✓</span> <span class="fn">${esc(x.pkl.file.name)}</span>` : '<span class="miss">chưa có</span>'}</td>
+      <td>${x.inb ? `<span class="ok2">✓</span> <span class="fn">${esc(x.inb.file.name)}</span>` : '<span class="miss">chưa có</span>'}</td></tr>`;
   }
-  const n = Object.values(FILES).filter(Boolean).length;
-  $('#run').disabled = n < 4 || $('#run').dataset.busy === '1';
-  $('#count').textContent = n + '/4 file';
+  h += '</tbody></table>';
+  if (STATE.orphanPkl.length || STATE.orphanInb.length) {
+    h += `<div class="hint">Không ghép được với hóa đơn nào: ${[...STATE.orphanPkl, ...STATE.orphanInb].map((x) => esc(x.file.name)).join(', ')}</div>`;
+  }
+  $('#groups').innerHTML = h;
 }
 
-function maybeAuto() {
-  if (Object.values(FILES).every(Boolean) && $('#run').dataset.busy !== '1') return run();
-}
+/* ================= Phân tích 1 hóa đơn ================= */
+function analyze(inv, pkl, rows, po) {
+  const lines = [];
+  const resolved = inv.items.map((it) => ({ it, rp: po ? resolvePo(it, { scax: po.map, sap: po.sap }) : { scax: it.po || '', sap: '', via: '' } }));
+  const priceKey = {};   // để chỉ ghép theo đơn giá khi (PO + đơn giá) là duy nhất trong hóa đơn
+  resolved.forEach(({ it, rp }) => { const k = (rp.sap || '') + '|' + it.price; priceKey[k] = (priceKey[k] || 0) + 1; });
 
-function headerIndex(ws) {
-  const vals = ws.getRow(1).values || [];
-  const H = {};
-  for (let i = 1; i < vals.length; i++) {
-    const v = String(vals[i] == null ? '' : vals[i]).replace(/\s+/g, ' ').trim().toLowerCase();
-    if (v) H[v] = i;
-  }
-  const pick = (...names) => { for (const n of names) if (H[n]) return H[n]; return 0; };
-  return {
-    po: pick('purchasing document'),
-    material: pick('material'),
-    desc: pick('material description'),
-    size: pick('size'),
-    spec: pick('specification'),
-    price: pick('gross price'),
-    sur: pick('surcharge item'),
-    qty: pick('quantity'),
-    deliv: pick('delivered qty'),
-    invQty: pick('invoice quantity'),
-    invNo: pick('invoice number'),
-    invDate: pick('invoice date'),
-    last: Math.max(...Object.values(H), 1),
-  };
-}
-
-async function run() {
-  $('#log').innerHTML = ''; $('#report').innerHTML = '';
-  $('#dl').classList.add('hidden'); $('#dl2').classList.add('hidden');
-  for (const k of ['inb', 'inv', 'pkl', 'po']) {
-    if (!FILES[k]) { log('Thiếu file: ' + KIND_NAME[k], 'err'); return; }
-  }
-  $('#run').disabled = true; $('#run').dataset.busy = '1';
-  try {
-    log(`Nhận diện: ${FILES.inv.name} → hóa đơn · ${FILES.pkl.name} → packing list · ${FILES.inb.name} → inbound · ${FILES.po.name} → PO SCAF-SCAX`, 'ok');
-    const cInv = await classify(FILES.inv), cPkl = await classify(FILES.pkl),
-      cPo = await classify(FILES.po), cInb = await classify(FILES.inb);
-
-    const inv = parseInvoice(cInv.lines || await pdfLines(FILES.inv));
-    if (!inv.invNo || !inv.invDate) throw new Error('Không đọc được số/ngày hóa đơn từ file PDF.');
-    log(`Hóa đơn: ${inv.invNo} — ngày ${inv.invDate} — ${inv.items.length} dòng`, 'ok');
-    inv.items.forEach((it, i) => log(`  ${i + 1}. ${it.code} / ${it.po} : ${it.qty.toLocaleString('vi-VN')}`));
-
-    const pkl = parsePacking(cPkl.lines || await pdfLines(FILES.pkl));
-    log(`Packing list: ${pkl.length} nhóm hàng`, 'ok');
-
-    const po = readPoWb(cPo.wb);
-    log(`PO SCAF-SCAX: ${po.map.size} mã PO ScaX + ${po.sap.size} mã PO ScaF`, 'ok');
-
-    const inbBuf = cInb.buf || await FILES.inb.arrayBuffer();
-    const wb = new ExcelJS.Workbook();                 // file báo cáo (bản có cột kiểm tra)
-    await wb.xlsx.load(inbBuf.slice(0));
-    const wbSap = new ExcelJS.Workbook();              // file import SAP (giữ nguyên template)
-    await wbSap.xlsx.load(inbBuf.slice(0));
-    const ws = wb.worksheets[0];
-    const wsSap = wbSap.worksheets[0];
-    const H = headerIndex(ws);
-    if (!H.po || !H.desc || !H.invNo || !H.invDate) throw new Error('File inbound thiếu cột bắt buộc (Purchasing Document / Material Description / Invoice Number / Invoice date).');
-
-    // read rows
-    const rows = [];
-    for (let r = 2; r <= ws.rowCount; r++) {
-      const row = ws.getRow(r);
-      const poV = row.getCell(H.po).text.trim();
-      if (!poV) continue;
-      rows.push({
-        r, poV,
-        desc: row.getCell(H.desc).text,
-        spec: H.spec ? row.getCell(H.spec).text : '',
-        size: H.size ? row.getCell(H.size).text.replace(/\s+/g, '').toUpperCase() : '',
-        qty: num(row.getCell(H.qty).value),
-        deliv: H.deliv ? num(row.getCell(H.deliv).value) : 0,
-        invQty: H.invQty ? num(row.getCell(H.invQty).value) : NaN,
-        price: H.price ? num(row.getCell(H.price).value) : NaN,
-        sur: H.sur ? num(row.getCell(H.sur).value) : 0,
-        eff: 0,
-        matched: null,
-      });
+  for (const { it, rp } of resolved) {
+    const sapPo = rp.sap;
+    it.poScax = rp.scax; it.poVia = rp.via;
+    it.po = rp.scax || rp.sap || it.po;
+    const codeN = norm(it.code);
+    const vars = codeVariants(it.code);
+    let hit = [], usedVar = '', matchBy = 'mã hàng';
+    if (rows && sapPo) {
+      var inPo = rows.filter((x) => x.poV.toUpperCase() === sapPo.toUpperCase());
+      for (const v of vars) {
+        const h = inPo.filter((x) => norm(x.desc).includes(v) || norm(x.spec).includes(v));
+        if (h.length) { hit = h; usedVar = v; break; }
+      }
+      // lọc thêm theo từ khóa phụ trong mã hàng (vd "Care" / "Main" của LB 07657 C/1)
+      const words = (String(it.code).toUpperCase().match(/[A-Z]{3,}/g) || []).filter((w) => !usedVar.includes(w));
+      for (const w of words) {
+        const h = hit.filter((x) => norm(x.desc).includes(w) || norm(x.spec).includes(w));
+        if (h.length && h.length < hit.length) hit = h;
+      }
+      // không tìm được mã hàng trong file inbound → thử ghép theo đơn giá (mã nội bộ của ITL khác mã SAP)
+      if (!hit.length && it.price && priceKey[(sapPo || '') + '|' + it.price] === 1) {
+        const h = inPo.filter((x) => x.price === it.price);
+        if (h.length) { hit = h; matchBy = 'đơn giá'; }
+      }
     }
-    log(`File inbound: ${rows.length} dòng dữ liệu`, 'ok');
+    const sumInvQty = hit.reduce((a, b) => a + (isNaN(b.invQty) ? 0 : b.invQty), 0);
+    const sumQty = hit.reduce((a, b) => a + (isNaN(b.qty) ? 0 : b.qty), 0);
+    const base = sumInvQty > 0 ? sumInvQty : sumQty;
+    const useInv = sumInvQty > 0;
+    const fallbackQty = !useInv && $('#useQty').checked;
+    hit.forEach((h) => {
+      h.eff = useInv ? (isNaN(h.invQty) ? 0 : h.invQty) : (isNaN(h.qty) ? 0 : h.qty);
+      if (h.eff > 0 && (useInv || fallbackQty)) h.matched = it;
+    });
+    const pklCodes = [...new Set(hit.map((h) => (h.spec.match(/\/([A-Z0-9]{3,6})#/) || [])[1]).filter(Boolean))];
 
-    /* ---- match ---- */
-    const lines = [];
-    for (const it of inv.items) {
-      const rp = resolvePo(it, { scax: po.map, sap: po.sap });
-      const sapPo = rp.sap;
-      it.poScax = rp.scax; it.poVia = rp.via;
-      it.po = rp.scax || rp.sap || it.po;
-      const codeN = norm(it.code);
-      const hit = sapPo ? rows.filter((x) => x.poV.toUpperCase() === sapPo.toUpperCase() && (norm(x.desc).includes(codeN) || norm(x.spec).includes(codeN))) : [];
-      const sumInvQty = hit.reduce((a, b) => a + (isNaN(b.invQty) ? 0 : b.invQty), 0);
-      const sumQty = hit.reduce((a, b) => a + (isNaN(b.qty) ? 0 : b.qty), 0);
-      const base = sumInvQty > 0 ? sumInvQty : sumQty;
-      // Nếu cột Invoice Quantity đã có số liệu thì đó là số lượng của hóa đơn này;
-      // chỉ khi cả nhóm đều trống mới lấy theo cột Quantity.
-      const useInv = sumInvQty > 0;
-      hit.forEach((h) => {
-        h.eff = useInv ? (isNaN(h.invQty) ? 0 : h.invQty) : (isNaN(h.qty) ? 0 : h.qty);
-        if (h.eff > 0) h.matched = it;
-      });
-      const pklCodes = [...new Set(hit.map((h) => (h.spec.match(/\/([A-Z0-9]{3,6})#/) || [])[1]).filter(Boolean))];
+    const bySize = {};
+    hit.forEach((h) => { const s = h.size || '?'; bySize[s] = (bySize[s] || 0) + h.eff; });
 
-      // per-size inbound
-      const bySize = {};
-      hit.forEach((h) => { const s = h.size || '?'; bySize[s] = (bySize[s] || 0) + h.eff; });
+    const inbPrices = [...new Set(hit.map((h) => h.price).filter((v) => !isNaN(v)))].sort((a, b) => a - b);
+    const inbAmount = hit.reduce((a, h) => a + h.eff * (isNaN(h.price) ? 0 : h.price) + (isNaN(h.sur) ? 0 : h.sur), 0);
+    const priceBad = hit.length > 0 && (inbPrices.length > 1 || (!!it.price && inbPrices.length === 1 && inbPrices[0] !== it.price));
+    // chỉ so thành tiền khi số lượng đã khớp — lệch SL thì đương nhiên lệch tiền
+    const amtBad = hit.length > 0 && useInv && base === it.qty && !!it.amount && Math.abs(inbAmount - it.amount) > 0.5;
 
-      // giá trị: đơn giá & thành tiền
-      const inbPrices = [...new Set(hit.map((h) => h.price).filter((v) => !isNaN(v)))].sort((a, b) => a - b);
-      const inbAmount = hit.reduce((a, h) => a + h.eff * (isNaN(h.price) ? 0 : h.price) + (isNaN(h.sur) ? 0 : h.sur), 0);
-      const priceBad = hit.length > 0 && (inbPrices.length > 1 || (!!it.price && inbPrices.length === 1 && inbPrices[0] !== it.price));
-      const amtBad = hit.length > 0 && !!it.amount && Math.abs(inbAmount - it.amount) > 0.5;
-
-      // packing list side
-      const cand = pkl.filter((g) => g.label === codeN);
+    // packing list
+    let pklSize = {}, pklTotal = 0; const pklCodesUsed = new Set();
+    if (pkl) {
+      const cand = pkl.filter((g) => g.label === codeN || vars.includes(g.label));
       let pg = [];
       if (rp.via === 'ScaX' && rp.scax) pg = cand.filter((g) => g.po && norm(g.po).endsWith(norm(rp.scax).slice(-4)));
       else if (sapPo) pg = cand.filter((g) => g.poSap === sapPo.toUpperCase() || norm(g.text).includes(norm(sapPo)));
       if (!pg.length) pg = cand.filter((g) => !g.po && !g.poSap);
       if (!pg.length) pg = cand;
-      const pklSize = {}; const pklCodesUsed = new Set();
       pg.forEach((g) => {
         Object.entries(g.inv).forEach(([code, sizes]) => {
           if (pklCodes.length && !pklCodes.includes(code)) return;
@@ -608,288 +686,543 @@ async function run() {
           Object.entries(sizes).forEach(([s, q]) => { pklSize[s] = (pklSize[s] || 0) + q; });
         });
       });
-      const pklTotal = Object.values(pklSize).reduce((a, b) => a + b, 0);
-
-      // missing rows from PO file (when inbound has none)
-      let poRows = [];
-      if (!hit.length && sapPo) {
-        poRows = po.rows.filter((x) => x.po.toUpperCase() === sapPo.toUpperCase() && (norm(x.spec).includes(codeN) || norm(x.name).includes(codeN)));
-        // nếu packing list chỉ ra mã invoice (vd 54A2) thì chỉ giữ đúng nhóm đó
-        const codes = [...pklCodesUsed];
-        if (codes.length) {
-          const f = poRows.filter((x) => codes.some((c) => norm(x.spec).includes('/' + norm(c) + '#')));
-          if (f.length) poRows = f;
-        }
-      }
-
-      const diffs = [];
-      const sizes = [...new Set([...Object.keys(bySize), ...Object.keys(pklSize)])]
-        .sort((a, b) => SIZE_ORDER.indexOf(a) - SIZE_ORDER.indexOf(b));
-      for (const s of sizes) {
-        const a = bySize[s] || 0, b = pklSize[s] || 0;
-        if (a !== b) diffs.push({ size: s, inb: a, pkl: b, diff: a - b });
-      }
-
-      let status, note;
-      if (!sapPo) { status = 'LỖI'; note = `Không tìm thấy PO "${it.po}" trong file PO SCAF-SCAX (đã dò cả cột PO No ScaX và PO No.)`; }
-      else if (!hit.length) {
-        status = 'THIẾU DÒNG';
-        note = `Không có dòng nào trong file inbound cho PO ${sapPo} + item ${it.code}` +
-          (poRows.length ? ` — file PO có ${poRows.length} dòng (${poRows.reduce((a, b) => a + (isNaN(b.qty) ? 0 : b.qty), 0).toLocaleString('vi-VN')} pcs)` : '');
-      } else if (base !== it.qty) {
-        status = 'LỆCH SL';
-        note = `Inbound ${base.toLocaleString('vi-VN')} vs hóa đơn ${it.qty.toLocaleString('vi-VN')} (lệch ${(base - it.qty).toLocaleString('vi-VN')})` +
-          (diffs.length ? ' — size lệch: ' + diffs.map((d) => `${d.size}: inbound ${d.inb} / PKL ${d.pkl}`).join('; ') : '');
-      } else if (priceBad || amtBad) {
-        status = 'LỆCH GIÁ TRỊ';
-        note = (priceBad ? `Đơn giá hóa đơn ${fmt(it.price)} ≠ đơn giá inbound ${inbPrices.map(fmt).join(' / ')}. ` : '') +
-          (amtBad ? `Thành tiền hóa đơn ${fmt(it.amount)} ≠ inbound ${fmt(inbAmount)} (lệch ${fmt(inbAmount - it.amount)}). ` : '') +
-          'CẦN KIỂM TRA LẠI HÓA ĐƠN.';
-      } else if (pklTotal && pklTotal !== it.qty) {
-        status = 'LỆCH PKL';
-        note = `Inbound khớp hóa đơn (${it.qty.toLocaleString('vi-VN')}) nhưng packing list ${pklTotal.toLocaleString('vi-VN')} pcs` +
-          (diffs.length ? ' — size lệch: ' + diffs.map((d) => `${d.size}: inbound ${d.inb} / PKL ${d.pkl}`).join('; ') : '');
-      } else { status = 'KHỚP'; note = ''; }
-      lines.push({
-        it, sapPo, hit, base, sumQty, sumInvQty, pklCodes: [...pklCodesUsed], pklSize, pklTotal,
-        bySize, diffs, poRows, status, note, inbPrices, inbAmount, priceBad, amtBad,
-      });
+      pklTotal = Object.values(pklSize).reduce((a, b) => a + b, 0);
     }
 
-    /* ---- kiểm tra tổng giá trị ---- */
-    const inbTotal = lines.reduce((a, l) => a + l.inbAmount, 0);
-    const itemsTotal = lines.reduce((a, l) => a + (isNaN(l.it.amount) ? 0 : l.it.amount), 0);
-    const invTotal = isNaN(inv.total) ? itemsTotal : inv.total;
-    const totalDiff = inbTotal - invTotal;
-    const valueLines = lines.filter((l) => l.priceBad || l.amtBad);
-    const otherLines = lines.filter((l) => !(l.priceBad || l.amtBad) && l.status !== 'KHỚP' && l.status !== 'LỆCH PKL');
-    const amtOf = (l) => l.inbAmount - (isNaN(l.it.amount) ? 0 : l.it.amount);
-    const valueDiff = valueLines.reduce((a, l) => a + amtOf(l), 0);
-    const otherDiff = otherLines.reduce((a, l) => a + amtOf(l), 0);
-    const valueBad = valueLines.length > 0;
-    const totalBad = Math.abs(totalDiff) > 0.5;
-    const VAL = { inbTotal, itemsTotal, invTotal, totalDiff, valueBad, totalBad, valueLines, otherLines, valueDiff, otherDiff };
-    if (valueBad) {
-      log(`⚠ HÓA ĐƠN SAI GIÁ TRỊ — CẦN KIỂM TRA LẠI: đơn giá/thành tiền trên hóa đơn không khớp với PO (lệch ${fmt(valueDiff)})`, 'err');
-      valueLines.forEach((l) => log(`   • ${l.it.code} / ${l.it.po}: ${l.note}`, 'err'));
-    }
-    if (totalBad && !valueBad) {
-      log(`Tổng tiền chưa khớp: hóa đơn ${fmt(invTotal)} vs inbound ${fmt(inbTotal)} (lệch ${fmt(totalDiff)}) — do có dòng thiếu/lệch số lượng trong file inbound, không phải sai đơn giá`, 'err');
-    }
-    if (!totalBad && !valueBad) log(`Giá trị khớp: tổng tiền hàng ${fmt(invTotal)}`, 'ok');
-
-    /* ---- fill workbook ---- */
-    const L = {
-      price: colLetter(H.price), sur: colLetter(H.sur), qty: colLetter(H.qty),
-      deliv: colLetter(H.deliv), invQty: colLetter(H.invQty),
-    };
-    const start = H.last + 1;
-    const extra = ['Amount', 'Balance', 'Check Status', 'Invoice Item', 'PO (hóa đơn)', 'Loại PO', 'Invoice No (check)', 'PKL Invoice Ref', 'Inbound Qty (item)', 'Invoice Qty (item)', 'PKL Qty (size)', 'Inbound Qty (size)', 'Diff (size)', 'Đơn giá HĐ', 'Đơn giá inbound', 'Thành tiền HĐ (item)', 'Thành tiền inbound (item)', 'Lệch tiền (item)', 'Ghi chú'];
-    const hRow = ws.getRow(1);
-    extra.forEach((t, i) => {
-      const c = hRow.getCell(start + i);
-      c.value = t;
-      c.font = Object.assign({}, hRow.getCell(1).font, { bold: true });
-      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDEBF7' } };
-      c.border = hRow.getCell(1).border;
-      ws.getColumn(start + i).width = i < 2 ? 14 : 18;
-    });
-    const onlyMatched = $('#onlyMatched').checked;
-    const toDelete = [];
-
-    for (const row of rows) {
-      const r = row.r, xr = ws.getRow(r);
-      const m = row.matched;
-      if (m) {
-        for (const w of [ws, wsSap]) {
-          w.getCell(r, H.invNo).value = inv.invNo;
-          w.getCell(r, H.invDate).value = inv.invDate;
-          w.getCell(r, H.invDate).numFmt = '@';
-        }
-      } else { toDelete.push(r); }
-
-      xr.getCell(start).value = { formula: `${L.invQty}${r}*${L.price}${r}+${L.sur}${r}` };
-      xr.getCell(start + 1).value = { formula: `${L.qty}${r}-(${L.invQty}${r}+${L.deliv}${r})` };
-      xr.getCell(start).numFmt = '#,##0';
-      xr.getCell(start + 1).numFmt = '#,##0';
-
-      const info = m ? lines.find((x) => x.it === m) : null;
-      if (info) {
-        const sz = row.size || '?';
-        const inbS = info.bySize[sz] || 0, pklS = info.pklSize[sz];
-        const dif = pklS == null ? null : inbS - pklS;
-        const vals = [info.status, m.code, m.po, m.poVia || '', inv.invNo, info.pklCodes.join(', '),
-          info.base, m.qty, pklS == null ? '' : pklS, inbS, dif == null ? '' : dif,
-          isNaN(m.price) ? '' : m.price, info.inbPrices.join(' / '),
-          isNaN(m.amount) ? '' : m.amount, info.inbAmount, isNaN(m.amount) ? '' : info.inbAmount - m.amount,
-          info.status === 'KHỚP' ? '' : info.note];
-        vals.forEach((v, i) => { xr.getCell(start + 2 + i).value = v; });
-        const red = info.priceBad || info.amtBad;
-        const bad = red || info.status !== 'KHỚP' || (dif != null && dif !== 0);
-        if (bad) {
-          for (let i = 0; i < extra.length; i++) {
-            xr.getCell(start + i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: red ? 'FFFFC7CE' : 'FFFFF2CC' } };
-          }
-          xr.getCell(start + 2).font = { bold: true, color: { argb: 'FFC00000' } };
-        }
-      } else {
-        xr.getCell(start + 2).value = 'KHÔNG THUỘC HÓA ĐƠN NÀY';
+    let poRows = [];
+    if (rows && !hit.length && sapPo && po) {
+      poRows = po.rows.filter((x) => x.po.toUpperCase() === sapPo.toUpperCase()
+        && vars.some((v) => norm(x.spec).includes(v) || norm(x.name).includes(v)));
+      const codes = [...pklCodesUsed];
+      if (codes.length) {
+        const f = poRows.filter((x) => codes.some((c) => norm(x.spec).includes('/' + norm(c) + '#')));
+        if (f.length) poRows = f;
       }
     }
-    // file import SAP: chỉ giữ các dòng thuộc hóa đơn này (nếu được chọn)
-    if (onlyMatched) toDelete.slice().sort((a, b) => b - a).forEach((r) => wsSap.spliceRows(r, 1));
 
-    /* ---- report sheet ---- */
-    const rs = wb.addWorksheet('BAO CAO');
-    const put = (r, arr, bold, fill) => {
-      arr.forEach((v, i) => {
-        const c = rs.getCell(r, i + 1); c.value = v;
-        if (bold) c.font = { bold: true };
-        if (fill) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } };
-      });
-    };
-    [22, 18, 10, 14, 12, 12, 12, 10, 11, 14, 15, 15, 12, 15, 60].forEach((w, i) => { rs.getColumn(i + 1).width = w; });
-    let R = 1;
-    put(R++, ['BÁO CÁO ĐỐI CHIẾU HÓA ĐƠN – INBOUND'], true);
-    put(R++, ['Số hóa đơn', inv.invNo]);
-    put(R++, ['Ngày hóa đơn', inv.invDate]);
-    put(R++, ['File inbound', FILES.inb.name]);
-    put(R++, ['File hóa đơn', FILES.inv.name]);
-    put(R++, ['File packing list', FILES.pkl.name]);
-    R++;
-    // ---- kiểm tra giá trị ----
-    if (VAL.valueBad) {
-      put(R, ['⚠ HÓA ĐƠN NÀY SAI GIÁ TRỊ – CẦN KIỂM TRA LẠI (đơn giá/thành tiền không khớp PO)'], true, 'FFFFC7CE');
-      rs.getCell(R, 1).font = { bold: true, size: 13, color: { argb: 'FFC00000' } };
-      R++;
-    } else if (VAL.totalBad) {
-      put(R, ['⚠ Tổng tiền chưa khớp do có dòng thiếu/lệch số lượng trong file inbound (đơn giá vẫn đúng)'], true, 'FFFFF2CC');
-      rs.getCell(R, 1).font = { bold: true, size: 12 };
-      R++;
+    const diffs = [];
+    const sizes = [...new Set([...Object.keys(bySize), ...Object.keys(pklSize)])]
+      .sort((a, b) => SIZE_ORDER.indexOf(a) - SIZE_ORDER.indexOf(b));
+    for (const s of sizes) {
+      const a = bySize[s] || 0, b = pklSize[s] || 0;
+      if (a !== b) diffs.push({ size: s, inb: a, pkl: b, diff: a - b });
     }
-    put(R++, ['KIỂM TRA GIÁ TRỊ', '', '', '', '', '', '', '', '', ''], true, 'FFDDEBF7');
-    put(R++, ['Cộng tiền hàng (hóa đơn)', VAL.invTotal]);
-    put(R++, ['Tổng thành tiền theo inbound', VAL.inbTotal]);
-    const rDiff = R;
-    put(R++, ['Chênh lệch', VAL.totalDiff, VAL.totalBad ? 'CẦN KIỂM TRA LẠI' : 'Khớp'],
-      true, VAL.valueBad ? 'FFFFC7CE' : (VAL.totalBad ? 'FFFFF2CC' : null));
-    if (VAL.totalBad) rs.getCell(rDiff, 2).font = { bold: true, color: { argb: 'FFC00000' } };
-    if (VAL.valueBad) put(R++, ['   trong đó do sai đơn giá/thành tiền', VAL.valueDiff], false, 'FFFFC7CE');
-    if (VAL.otherLines.length) put(R++, ['   trong đó do dòng thiếu/lệch số lượng', VAL.otherDiff], false, 'FFFFF2CC');
-    if (!isNaN(inv.vat)) put(R++, ['Tiền thuế GTGT (hóa đơn)', inv.vat]);
-    if (!isNaN(inv.payment)) put(R++, ['Tổng cộng tiền thanh toán (hóa đơn)', inv.payment]);
-    R++;
-    put(R++, ['Item', 'PO (hóa đơn)', 'Loại PO', 'PO SAP', 'SL hóa đơn', 'SL inbound', 'SL packing', 'Lệch SL',
-      'Đơn giá HĐ', 'Đơn giá inbound', 'Thành tiền HĐ', 'Thành tiền inbound', 'Lệch tiền', 'Kết quả', 'Ghi chú'], true, 'FFDDEBF7');
-    for (const l of lines) {
-      const red = l.priceBad || l.amtBad;
-      const rr = R;
-      put(R++, [l.it.code, l.it.po, l.it.poVia || '(?)', l.sapPo || '(không tìm thấy)', l.it.qty, l.base, l.pklTotal || '', l.base - l.it.qty,
-        isNaN(l.it.price) ? '' : l.it.price, l.inbPrices.join(' / '),
-        isNaN(l.it.amount) ? '' : l.it.amount, l.inbAmount, isNaN(l.it.amount) ? '' : l.inbAmount - l.it.amount,
-        l.status, l.note], false, l.status === 'KHỚP' ? null : (red ? 'FFFFC7CE' : 'FFFFF2CC'));
-      if (red) rs.getCell(rr, 14).font = { bold: true, color: { argb: 'FFC00000' } };
-    }
-    R++;
-    const bad = lines.filter((l) => l.status !== 'KHỚP');
-    if (bad.length) {
-      put(R++, ['CHI TIẾT DÒNG SAI LỆCH'], true);
-      for (const l of bad) {
-        put(R++, [`${l.it.code} / ${l.it.po} → ${l.sapPo}`], true);
-        if (l.diffs.length) {
-          put(R++, ['', 'PKL Invoice', 'Size', 'SL inbound', 'SL packing', 'Lệch'], true, 'FFEEEEEE');
-          for (const d of l.diffs) put(R++, ['', l.pklCodes.join(', '), d.size, d.inb, d.pkl, d.diff]);
-        }
-        if (l.poRows.length) {
-          put(R++, ['', 'Dòng có trong file PO nhưng thiếu trong inbound:'], true);
-          put(R++, ['', 'Specification', 'Size', 'SL PO', 'Đơn giá'], true, 'FFEEEEEE');
-          for (const p of l.poRows) put(R++, ['', p.spec, p.size, p.qty, p.price]);
-          put(R++, ['', 'Tổng', '', l.poRows.reduce((a, b) => a + (isNaN(b.qty) ? 0 : b.qty), 0)], true);
-        }
-        if (l.priceBad || l.amtBad) {
-          put(R++, ['', 'Đơn giá hóa đơn', isNaN(l.it.price) ? '' : l.it.price, 'Đơn giá inbound', l.inbPrices.join(' / ')], false, 'FFFFC7CE');
-          put(R++, ['', 'Thành tiền hóa đơn', isNaN(l.it.amount) ? '' : l.it.amount, 'Thành tiền inbound', l.inbAmount,
-            'Lệch', isNaN(l.it.amount) ? '' : l.inbAmount - l.it.amount], false, 'FFFFC7CE');
-        }
-        if (!l.diffs.length && !l.poRows.length && !(l.priceBad || l.amtBad)) put(R++, ['', l.note]);
-        R++;
-      }
+
+    let status, note;
+    if (!po) { status = 'THIẾU FILE PO'; note = 'Chưa tải file PO SCAF-SCAX nên không tra được PO'; }
+    else if (!sapPo) { status = 'LỖI'; note = `Không tìm thấy PO "${it.po}" trong file PO SCAF-SCAX (đã dò cả cột PO No ScaX và PO No.)`; }
+    else if (!rows) {
+      status = 'CHƯA CÓ INBOUND';
+      note = pklTotal ? (pklTotal === it.qty ? `Chưa có file inbound — packing list khớp hóa đơn (${fmt(it.qty)})`
+        : `Chưa có file inbound — packing list ${fmt(pklTotal)} ≠ hóa đơn ${fmt(it.qty)}`) : 'Chưa có file inbound';
+    } else if (!hit.length) {
+      status = 'THIẾU DÒNG';
+      note = `Không có dòng nào trong file inbound cho PO ${sapPo} + item "${it.code}" (đã thử cả ghép theo đơn giá ${fmt(it.price)})` +
+        (poRows.length ? ` — file PO có ${poRows.length} dòng (${fmt(poRows.reduce((a, b) => a + (isNaN(b.qty) ? 0 : b.qty), 0))} pcs)` : '');
+    } else if (priceBad || amtBad) {
+      status = 'LỆCH GIÁ TRỊ';
+      note = (priceBad ? `Đơn giá hóa đơn ${fmt(it.price)} ≠ đơn giá inbound ${inbPrices.map(fmt).join(' / ')}. ` : '') +
+        (amtBad ? `Thành tiền hóa đơn ${fmt(it.amount)} ≠ inbound ${fmt(inbAmount)} (lệch ${fmt(inbAmount - it.amount)}). ` : '') +
+        (!useInv ? `(Cột Invoice Quantity đang trống, SL theo Quantity là ${fmt(base)}.) ` : '') +
+        'CẦN KIỂM TRA LẠI HÓA ĐƠN.';
+    } else if (!useInv) {
+      status = 'CHƯA ĐIỀN SL HĐ';
+      note = `Cột Invoice Quantity của ${hit.length} dòng inbound đang trống — SL theo cột Quantity là ${fmt(base)}, hóa đơn ${fmt(it.qty)}. ` +
+        'Hãy điền Invoice Quantity rồi chạy lại (hoặc tick "Dùng cột Quantity khi Invoice Quantity còn trống").';
+    } else if (base !== it.qty) {
+      status = 'LỆCH SL';
+      note = `Inbound ${fmt(base)} vs hóa đơn ${fmt(it.qty)} (lệch ${fmt(base - it.qty)})` +
+        (diffs.length ? ' — size lệch: ' + diffs.map((d) => `${d.size}: inbound ${d.inb} / PKL ${d.pkl}`).join('; ') : '');
+    } else if (pkl && pklTotal && pklTotal !== it.qty) {
+      status = 'LỆCH PKL';
+      note = `Inbound khớp hóa đơn (${fmt(it.qty)}) nhưng packing list ${fmt(pklTotal)} pcs` +
+        (diffs.length ? ' — size lệch: ' + diffs.map((d) => `${d.size}: inbound ${d.inb} / PKL ${d.pkl}`).join('; ') : '');
     } else {
-      put(R++, ['Tất cả các dòng khớp số lượng và giá trị giữa hóa đơn, inbound và packing list.'], true);
+      status = 'KHỚP';
+      note = (matchBy !== 'mã hàng' ? `Ghép theo ${matchBy} (mã hàng không có trong file inbound). ` : '')
+        + (pkl ? '' : 'Không có packing list — chỉ đối chiếu với hóa đơn');
+    }
+    if (matchBy !== 'mã hàng' && status !== 'KHỚP') note = `Ghép theo ${matchBy}. ` + note;
+
+    lines.push({
+      it, sapPo, hit, base, sumQty, sumInvQty, pklCodes: [...pklCodesUsed], pklSize, pklTotal,
+      bySize, diffs, poRows, status, note, inbPrices, inbAmount, priceBad, amtBad,
+      hasInb: !!rows, hasPkl: !!pkl, useInv, matchBy,
+    });
+  }
+
+  const itemsTotal = lines.reduce((a, l) => a + (isNaN(l.it.amount) ? 0 : l.it.amount), 0);
+  const invTotal = isNaN(inv.total) ? itemsTotal : inv.total;
+  // chỉ so tổng tiền trên các dòng đã điền Invoice Quantity
+  const cmp = lines.filter((l) => l.hasInb && l.useInv);
+  const inbTotal = cmp.reduce((a, l) => a + l.inbAmount, 0);
+  const invCmpTotal = cmp.reduce((a, l) => a + (isNaN(l.it.amount) ? 0 : l.it.amount), 0);
+  const totalDiff = inbTotal - invCmpTotal;
+  const valueLines = lines.filter((l) => l.priceBad || l.amtBad);
+  const pendingLines = lines.filter((l) => l.status === 'CHƯA ĐIỀN SL HĐ');
+  const otherLines = lines.filter((l) => !(l.priceBad || l.amtBad)
+    && !['KHỚP', 'LỆCH PKL', 'CHƯA CÓ INBOUND', 'CHƯA ĐIỀN SL HĐ'].includes(l.status));
+  const amtOf = (l) => l.inbAmount - (isNaN(l.it.amount) ? 0 : l.it.amount);
+  const VAL = {
+    inbTotal, itemsTotal, invTotal, invCmpTotal, totalDiff,
+    valueBad: valueLines.length > 0,
+    totalBad: cmp.length > 0 && Math.abs(totalDiff) > 0.5,
+    valueLines, otherLines, pendingLines, cmpCount: cmp.length,
+    valueDiff: valueLines.reduce((a, l) => a + amtOf(l), 0),
+    otherDiff: otherLines.reduce((a, l) => a + amtOf(l), 0),
+    hasInb: !!rows,
+  };
+  return { lines, VAL };
+}
+
+/* ================= Đọc dòng của file inbound ================= */
+function readInbRows(ws, H) {
+  const rows = [];
+  for (let r = 2; r <= ws.rowCount; r++) {
+    const row = ws.getRow(r);
+    const poV = row.getCell(H.po).text.trim();
+    if (!poV) continue;
+    rows.push({
+      r, poV,
+      desc: row.getCell(H.desc).text,
+      spec: H.spec ? row.getCell(H.spec).text : '',
+      size: H.size ? row.getCell(H.size).text.replace(/\s+/g, '').toUpperCase() : '',
+      qty: num(row.getCell(H.qty).value),
+      deliv: H.deliv ? num(row.getCell(H.deliv).value) : 0,
+      invQty: H.invQty ? num(row.getCell(H.invQty).value) : NaN,
+      price: H.price ? num(row.getCell(H.price).value) : NaN,
+      sur: H.sur ? num(row.getCell(H.sur).value) : 0,
+      eff: 0, matched: null,
+    });
+  }
+  return rows;
+}
+
+/* ================= Xuất file ================= */
+const OUTPUTS = [];
+async function addDownload(book, fname, label, cls) {
+  const blob = new Blob([await book.xlsx.writeBuffer()], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  OUTPUTS.push({ url: URL.createObjectURL(blob), fname, label, cls });
+}
+function renderDownloads() {
+  $('#dls').innerHTML = OUTPUTS.map((o, i) => `<a class="dl ${o.cls || ''}" id="dlx${i}" href="${o.url}" download="${o.fname}">⬇ ${o.label}</a>`).join('');
+  $('#dlall').classList.toggle('hidden', OUTPUTS.length < 2);
+}
+
+function fillSapWorkbook(ws, H, rows, inv, onlyMatched) {
+  const toDelete = [];
+  for (const row of rows) {
+    if (row.matched) {
+      ws.getCell(row.r, H.invNo).value = inv.invNo;
+      ws.getCell(row.r, H.invDate).value = inv.invDate;
+      ws.getCell(row.r, H.invDate).numFmt = '@';
+    } else toDelete.push(row.r);
+  }
+  if (onlyMatched) toDelete.slice().sort((a, b) => b - a).forEach((r) => ws.spliceRows(r, 1));
+  return rows.length - toDelete.length;
+}
+
+/* ================= Chạy ================= */
+async function run() {
+  if (STATE.busy) return;
+  if (!STATE.groups.length) { log('Chưa có hóa đơn nào.', 'err'); return; }
+  STATE.busy = true; $('#run').disabled = true; $('#runpo').disabled = true;
+  $('#log').innerHTML = ''; $('#report').innerHTML = ''; $('#dls').innerHTML = '';
+  OUTPUTS.length = 0;
+  try {
+    const po = STATE.poIdx;
+    if (!po) log('Chưa có file PO SCAF-SCAX — không tra được PO ScaX → ScaF.', 'err');
+    else log(`PO SCAF-SCAX: ${po.map.size} mã ScaX + ${po.sap.size} mã ScaF`, 'ok');
+
+    const onlyMatched = $('#onlyMatched').checked;
+    const perInvoiceReport = $('#perReport').checked;
+    const all = [];
+
+    for (const g of STATE.groups) {
+      const inv = g.inv.inv;
+      log(`── Hóa đơn ${inv.invNo || g.inv.file.name} (${inv.items.length} dòng)${g.pkl ? '' : ' — không có packing list'}${g.inb ? '' : ' — CHƯA CÓ INBOUND'}`);
+      const pklGroups = g.pkl ? parsePacking((await classify(g.pkl.file)).lines) : null;
+      let rows = null, wbSap = null, wsSap = null, H = null, cInb = null;
+      if (g.inb) {
+        cInb = await classify(g.inb.file);
+        wbSap = new ExcelJS.Workbook();
+        await wbSap.xlsx.load(cInb.buf.slice(0));
+        wsSap = wbSap.worksheets[0];
+        H = headerIndex(wsSap);
+        if (!H.po || !H.desc || !H.invNo || !H.invDate) { log('  File inbound thiếu cột bắt buộc — bỏ qua.', 'err'); rows = null; }
+        else rows = readInbRows(wsSap, H);
+      }
+      const { lines, VAL } = analyze(inv, pklGroups, rows, po);
+      all.push({ g, inv, lines, VAL });
+
+      const bad = lines.filter((l) => !['KHỚP', 'CHƯA CÓ INBOUND'].includes(l.status));
+      if (VAL.valueBad) log(`  ⚠ SAI GIÁ TRỊ — lệch ${fmt(VAL.valueDiff)}: ` + VAL.valueLines.map((l) => `${l.it.code}/${l.it.po}`).join(', '), 'err');
+      if (bad.length && !VAL.valueBad) log(`  ${bad.length} dòng cần xem lại: ` + bad.map((l) => `${l.it.code}/${l.it.po} (${l.status})`).join(', '), 'err');
+      if (!bad.length && rows) log('  Khớp toàn bộ.', 'ok');
+
+      if (rows) {
+        const kept = fillSapWorkbook(wsSap, H, rows, inv, onlyMatched);
+        const stamp = `${inv.invNo.replace('#', '-')}_${inv.invDate}`;
+        await addDownload(wbSap, `INB_${stamp}.xlsx`, `Import SAP – ${inv.invNo} (${kept} dòng)`, 'main');
+        if (perInvoiceReport) {
+          const wbR = new ExcelJS.Workbook();
+          await wbR.xlsx.load(cInb.buf.slice(0));
+          const wsR = wbR.worksheets[0];
+          const rows2 = readInbRows(wsR, H);
+          const a2 = analyze(inv, pklGroups, rows2, po);
+          buildDetailSheet(wbR, wsR, H, rows2, a2.lines, inv, a2.VAL, g);
+          await addDownload(wbR, `BAOCAO_${stamp}.xlsx`, `Báo cáo chi tiết – ${inv.invNo}`, 'alt');
+        }
+      }
     }
 
-    /* ---- output: 2 file ---- */
-    const stamp = `${inv.invNo.replace('#', '-')}_${inv.invDate}`;
-    const link = async (sel, book, fname, label) => {
-      const blob = new Blob([await book.xlsx.writeBuffer()], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const a = $(sel);
-      if (a.dataset.url) URL.revokeObjectURL(a.dataset.url);
-      const url = URL.createObjectURL(blob);
-      a.href = url; a.download = fname; a.dataset.url = url;
-      a.textContent = label + fname;
-      a.classList.remove('hidden');
-    };
-    await link('#dl', wbSap, `INB_${stamp}.xlsx`, '⬇ File import SAP: ');
-    await link('#dl2', wb, `BAOCAO_${stamp}.xlsx`, '⬇ File báo cáo: ');
-    log(`File import SAP: ${rows.length - toDelete.length}/${rows.length} dòng thuộc hóa đơn này` +
-      (onlyMatched ? ' (đã bỏ các dòng còn lại)' : ' (giữ nguyên toàn bộ dòng)'), 'ok');
-    RESULT = { inv, lines };
-    window.__RESULT__ = {
-      invNo: inv.invNo, invDate: inv.invDate,
-      val: { invTotal: VAL.invTotal, inbTotal: VAL.inbTotal, totalDiff: VAL.totalDiff, valueBad: VAL.valueBad, totalBad: VAL.totalBad },
-      lines: lines.map((l) => ({ code: l.it.code, po: l.it.po, via: l.it.poVia, sapPo: l.sapPo, invQty: l.it.qty, inbQty: l.base, pklQty: l.pklTotal, invPrice: l.it.price, inbPrices: l.inbPrices, invAmt: l.it.amount, inbAmt: l.inbAmount, status: l.status, note: l.note, diffs: l.diffs.length, poRows: l.poRows.length })),
-    };
+    const wbSum = new ExcelJS.Workbook();
+    buildSummaryWorkbook(wbSum, all);
+    await addDownload(wbSum, `BAOCAO_TONGHOP_${new Date().toISOString().slice(0, 10)}.xlsx`, `Báo cáo tổng hợp (${all.length} hóa đơn)`, 'alt');
 
-    renderReport(inv, lines, VAL);
+    renderDownloads();
+    renderAll(all);
+    RESULT = all;
+    window.__RESULT__ = all.map((a) => ({
+      invNo: a.inv.invNo, invDate: a.inv.invDate, pkl: !!a.g.pkl, inb: !!a.g.inb,
+      invTotal: a.VAL.invTotal, inbTotal: a.VAL.inbTotal, valueBad: a.VAL.valueBad,
+      lines: a.lines.map((l) => ({ code: l.it.code, po: l.it.po, via: l.it.poVia, sapPo: l.sapPo, invQty: l.it.qty, inbQty: l.base, pklQty: l.pklTotal, status: l.status })),
+    }));
     log('Hoàn tất.', 'ok');
   } catch (e) {
     log('Lỗi: ' + (e && e.message ? e.message : e), 'err');
     console.error(e);
   } finally {
-    $('#run').dataset.busy = '0';
-    renderSlots();
+    STATE.busy = false; $('#run').disabled = false; $('#runpo').disabled = false;
   }
 }
 
-function renderReport(inv, lines, VAL) {
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-  let h = '';
-  if (VAL.valueBad || VAL.totalBad) {
-    const totals = `<div class="lines"><span>Cộng tiền hàng trên hóa đơn: <b>${fmt(VAL.invTotal)}</b></span>
-      <span>Tổng thành tiền theo inbound: <b>${fmt(VAL.inbTotal)}</b></span>
-      <span>Chênh lệch: <b>${VAL.totalDiff > 0 ? '+' : ''}${fmt(VAL.totalDiff)}</b></span></div>`;
-    if (VAL.valueBad) {
-      h += `<div class="alert"><div class="ttl">⚠ HÓA ĐƠN NÀY SAI GIÁ TRỊ — CẦN KIỂM TRA LẠI</div>${totals}
-        ${VAL.valueLines.map((l) => `<div class="li">• <b>${esc(l.it.code)} / ${esc(l.it.po)}</b>: ${esc(l.note)}</div>`).join('')}
-        ${VAL.otherLines.length ? `<div class="li">• Ngoài ra còn ${VAL.otherLines.length} dòng thiếu/lệch số lượng (${fmt(VAL.otherDiff)})</div>` : ''}</div>`;
-    } else {
-      h += `<div class="alert warn2"><div class="ttl">⚠ Tổng tiền chưa khớp — do dòng thiếu/lệch số lượng trong file inbound, đơn giá vẫn đúng</div>${totals}
-        ${VAL.otherLines.map((l) => `<div class="li">• <b>${esc(l.it.code)} / ${esc(l.it.po)}</b>: ${esc(l.status)} — ${esc(l.note)}</div>`).join('')}</div>`;
+/* ================= Xuất danh sách PO ================= */
+async function runPoList() {
+  if (STATE.busy) return;
+  if (!STATE.groups.length) { log('Chưa có hóa đơn nào.', 'err'); return; }
+  STATE.busy = true; $('#runpo').disabled = true;
+  try {
+    const po = STATE.poIdx;
+    const map = new Map();       // sapPo -> {sap, scax, invs:Set, qty, amount}
+    const unresolved = [];
+    for (const g of STATE.groups) {
+      const inv = g.inv.inv;
+      for (const it of inv.items) {
+        const rp = po ? resolvePo(it, { scax: po.map, sap: po.sap }) : { scax: it.po || '', sap: '', via: '' };
+        if (!rp.sap) { unresolved.push({ invNo: inv.invNo, code: it.code, po: it.po || '(không đọc được)', qty: it.qty }); continue; }
+        const k = rp.sap.toUpperCase();
+        if (!map.has(k)) map.set(k, { sap: rp.sap, scax: rp.scax || '', invs: new Set(), qty: 0, amount: 0, items: new Set() });
+        const e = map.get(k);
+        e.invs.add(inv.invNo); e.items.add(it.code);
+        e.qty += isNaN(it.qty) ? 0 : it.qty;
+        e.amount += isNaN(it.amount) ? 0 : it.amount;
+        if (!e.scax && rp.scax) e.scax = rp.scax;
+      }
     }
+    const list = [...map.values()].sort((a, b) => a.sap.localeCompare(b.sap));
+
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('PO');
+    ws.getColumn(1).width = 16; ws.getColumn(2).width = 22;
+    ws.addRow(['PO No.', 'PO No ScaX']);
+    ws.getRow(1).font = { bold: true };
+    ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDEBF7' } };
+    list.forEach((e) => ws.addRow([e.sap, e.scax]));
+
+    const d = wb.addWorksheet('CHI TIET');
+    [16, 22, 22, 14, 14, 12, 16, 16].forEach((w, i) => { d.getColumn(i + 1).width = w; });
+    d.addRow(['PO No.', 'PO No ScaX', 'Hóa đơn', 'Ngày', 'Item', 'SL', 'Thành tiền', 'Ghi chú']);
+    d.getRow(1).font = { bold: true };
+    d.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDEBF7' } };
+    for (const g of STATE.groups) {
+      const inv = g.inv.inv;
+      for (const it of inv.items) {
+        const rp = po ? resolvePo(it, { scax: po.map, sap: po.sap }) : { scax: '', sap: '', via: '' };
+        d.addRow([rp.sap || '(không tra được)', rp.scax || '', inv.invNo, inv.invDate, it.code,
+          it.qty, isNaN(it.amount) ? '' : it.amount, g.inb ? 'đã có inbound' : 'chưa có inbound']);
+      }
+    }
+    if (unresolved.length) {
+      const u = wb.addWorksheet('KHONG TRA DUOC');
+      [20, 16, 22, 12].forEach((w, i) => { u.getColumn(i + 1).width = w; });
+      u.addRow(['Hóa đơn', 'Item', 'Mã PO trên hóa đơn', 'SL']);
+      u.getRow(1).font = { bold: true };
+      unresolved.forEach((x) => u.addRow([x.invNo, x.code, x.po, x.qty]));
+    }
+    OUTPUTS.length = 0;
+    await addDownload(wb, `DANHSACH_PO_${new Date().toISOString().slice(0, 10)}.xlsx`, `Danh sách PO (${list.length} PO / ${STATE.groups.length} hóa đơn)`, 'main');
+    renderDownloads();
+    log(`Danh sách PO: ${list.length} PO từ ${STATE.groups.length} hóa đơn` + (unresolved.length ? ` — ${unresolved.length} dòng không tra được PO` : ''), 'ok');
+    renderPoTable(list, unresolved);
+  } catch (e) {
+    log('Lỗi: ' + (e && e.message ? e.message : e), 'err');
+    console.error(e);
+  } finally {
+    STATE.busy = false; $('#runpo').disabled = false;
   }
-  h += `<div class="sum"><div><span>Số hóa đơn</span><b>${esc(inv.invNo)}</b></div><div><span>Ngày hóa đơn</span><b>${esc(inv.invDate)}</b></div><div><span>Số dòng</span><b>${lines.length}</b></div><div><span>Tiền hàng (HĐ)</span><b>${fmt(VAL.invTotal)}</b></div><div><span>Tiền hàng (inbound)</span><b class="${VAL.valueBad ? 'bad' : 'good'}">${fmt(VAL.inbTotal)}</b></div><div><span>Sai lệch</span><b class="${lines.some(l => l.status !== 'KHỚP') ? 'bad' : 'good'}">${lines.filter(l => l.status !== 'KHỚP').length}</b></div></div>`;
-  h += '<table><thead><tr><th>Item</th><th>PO (hóa đơn)</th><th>PO SAP</th><th class="n">SL hóa đơn</th><th class="n">SL inbound</th><th class="n">SL packing</th><th class="n">Đơn giá HĐ</th><th class="n">Đơn giá inb.</th><th class="n">Lệch tiền</th><th>Kết quả</th><th>Ghi chú</th></tr></thead><tbody>';
+}
+
+/* ================= Sheet chi tiết cho 1 hóa đơn ================= */
+const EXTRA = ['Amount', 'Balance', 'Check Status', 'Invoice Item', 'PO (hóa đơn)', 'Loại PO', 'Invoice No (check)',
+  'PKL Invoice Ref', 'Inbound Qty (item)', 'Invoice Qty (item)', 'PKL Qty (size)', 'Inbound Qty (size)', 'Diff (size)',
+  'Đơn giá HĐ', 'Đơn giá inbound', 'Thành tiền HĐ (item)', 'Thành tiền inbound (item)', 'Lệch tiền (item)', 'Ghi chú'];
+
+function buildDetailSheet(wb, ws, H, rows, lines, inv, VAL, g) {
+  const L = {
+    price: colLetter(H.price), sur: colLetter(H.sur), qty: colLetter(H.qty),
+    deliv: colLetter(H.deliv), invQty: colLetter(H.invQty),
+  };
+  const start = H.last + 1;
+  const hRow = ws.getRow(1);
+  EXTRA.forEach((t, i) => {
+    const c = hRow.getCell(start + i);
+    c.value = t;
+    c.font = Object.assign({}, hRow.getCell(1).font, { bold: true });
+    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDEBF7' } };
+    ws.getColumn(start + i).width = i < 2 ? 14 : 18;
+  });
+  for (const row of rows) {
+    const r = row.r, xr = ws.getRow(r), m = row.matched;
+    if (m) {
+      ws.getCell(r, H.invNo).value = inv.invNo;
+      ws.getCell(r, H.invDate).value = inv.invDate;
+      ws.getCell(r, H.invDate).numFmt = '@';
+    }
+    xr.getCell(start).value = { formula: `${L.invQty}${r}*${L.price}${r}+${L.sur}${r}` };
+    xr.getCell(start + 1).value = { formula: `${L.qty}${r}-(${L.invQty}${r}+${L.deliv}${r})` };
+    xr.getCell(start).numFmt = '#,##0';
+    xr.getCell(start + 1).numFmt = '#,##0';
+    const info = m ? lines.find((x) => x.it === m) : null;
+    if (info) {
+      const sz = row.size || '?';
+      const inbS = info.bySize[sz] || 0, pklS = info.pklSize[sz];
+      const dif = pklS == null ? null : inbS - pklS;
+      [info.status, m.code, m.po, m.poVia || '', inv.invNo, info.pklCodes.join(', '),
+        info.base, m.qty, pklS == null ? '' : pklS, inbS, dif == null ? '' : dif,
+        isNaN(m.price) ? '' : m.price, info.inbPrices.join(' / '),
+        isNaN(m.amount) ? '' : m.amount, info.inbAmount, isNaN(m.amount) ? '' : info.inbAmount - m.amount,
+        info.status === 'KHỚP' ? '' : info.note,
+      ].forEach((v, i) => { xr.getCell(start + 2 + i).value = v; });
+      const red = info.priceBad || info.amtBad;
+      if (red || info.status !== 'KHỚP' || (dif != null && dif !== 0)) {
+        for (let i = 0; i < EXTRA.length; i++) {
+          xr.getCell(start + i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: red ? 'FFFFC7CE' : 'FFFFF2CC' } };
+        }
+        xr.getCell(start + 2).font = { bold: true, color: { argb: 'FFC00000' } };
+      }
+    } else xr.getCell(start + 2).value = 'KHÔNG THUỘC HÓA ĐƠN NÀY';
+  }
+  const rs = wb.addWorksheet('BAO CAO');
+  writeInvoiceReport(rs, 1, inv, lines, VAL, g, true);
+}
+
+/* Khối báo cáo của 1 hóa đơn, trả về dòng kế tiếp */
+function writeInvoiceReport(rs, R, inv, lines, VAL, g, withWidths) {
+  const put = (r, arr, bold, fill) => {
+    arr.forEach((v, i) => {
+      const c = rs.getCell(r, i + 1); c.value = v;
+      if (bold) c.font = { bold: true };
+      if (fill) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } };
+    });
+  };
+  if (withWidths) [22, 18, 10, 14, 12, 12, 12, 10, 11, 14, 15, 15, 12, 15, 60].forEach((w, i) => { rs.getColumn(i + 1).width = w; });
+  put(R, [`HÓA ĐƠN ${inv.invNo} — ngày ${inv.invDate}`], true, 'FFEEEEEE');
+  rs.getCell(R, 1).font = { bold: true, size: 12 }; R++;
+  put(R++, ['File hóa đơn', g.inv.file.name]);
+  put(R++, ['File packing list', g.pkl ? g.pkl.file.name : '(không có)']);
+  put(R++, ['File inbound', g.inb ? g.inb.file.name : '(chưa có)']);
+  if (VAL.valueBad) {
+    put(R, ['⚠ HÓA ĐƠN NÀY SAI GIÁ TRỊ – CẦN KIỂM TRA LẠI (đơn giá/thành tiền không khớp PO)'], true, 'FFFFC7CE');
+    rs.getCell(R, 1).font = { bold: true, size: 12, color: { argb: 'FFC00000' } }; R++;
+  } else if (VAL.totalBad) {
+    put(R, ['⚠ Tổng tiền chưa khớp do có dòng thiếu/lệch số lượng trong file inbound (đơn giá vẫn đúng)'], true, 'FFFFF2CC');
+    R++;
+  }
+  put(R++, ['Cộng tiền hàng (hóa đơn)', VAL.invTotal]);
+  if (VAL.hasInb && VAL.cmpCount) {
+    if (VAL.pendingLines.length) put(R++, ['Phần đối chiếu được (hóa đơn)', VAL.invCmpTotal,
+      `${VAL.pendingLines.length} dòng chưa điền Invoice Quantity nên chưa đối chiếu tiền`]);
+    put(R++, ['Tổng thành tiền theo inbound', VAL.inbTotal]);
+    put(R++, ['Chênh lệch', VAL.totalDiff, VAL.totalBad ? 'CẦN KIỂM TRA LẠI' : 'Khớp'], true,
+      VAL.valueBad ? 'FFFFC7CE' : (VAL.totalBad ? 'FFFFF2CC' : null));
+  }
+  if (!isNaN(inv.vat)) put(R++, ['Tiền thuế GTGT (hóa đơn)', inv.vat]);
+  if (!isNaN(inv.payment)) put(R++, ['Tổng cộng tiền thanh toán (hóa đơn)', inv.payment]);
+  R++;
+  put(R++, ['Item', 'PO (hóa đơn)', 'Loại PO', 'PO SAP', 'SL hóa đơn', 'SL inbound', 'SL packing', 'Lệch SL',
+    'Đơn giá HĐ', 'Đơn giá inbound', 'Thành tiền HĐ', 'Thành tiền inbound', 'Lệch tiền', 'Kết quả', 'Ghi chú'], true, 'FFDDEBF7');
   for (const l of lines) {
-    const ok = l.status === 'KHỚP';
-    h += `<tr class="${ok ? '' : 'warn'}"><td>${esc(l.it.code)}</td><td>${esc(l.it.po)}${l.it.poVia ? ` <span class="tag ${l.it.poVia === 'ScaF' ? 'bad' : 'good'}" style="background:var(--brand-soft);color:var(--brand)">${esc(l.it.poVia)}</span>` : ''}</td><td>${esc(l.sapPo || '—')}</td>
-    <td class="n">${l.it.qty.toLocaleString('vi-VN')}</td><td class="n">${l.base.toLocaleString('vi-VN')}</td>
-    <td class="n">${l.pklTotal ? l.pklTotal.toLocaleString('vi-VN') : '—'}</td>
-    <td class="n">${fmt(l.it.price)}</td>
-    <td class="n ${l.priceBad ? 'bad' : ''}"><b>${l.inbPrices.map(fmt).join(' / ') || '—'}</b></td>
-    <td class="n ${l.amtBad ? 'bad' : ''}">${isNaN(l.it.amount) ? '—' : fmt(l.inbAmount - l.it.amount)}</td>
-    <td><span class="tag ${ok ? 'good' : 'bad'}">${esc(l.status)}</span></td><td class="note">${esc(l.note)}</td></tr>`;
+    const red = l.priceBad || l.amtBad;
+    const rr = R;
+    put(R++, [l.it.code, l.it.po, l.it.poVia || '(?)', l.sapPo || '(không tìm thấy)', l.it.qty,
+      l.hasInb ? l.base : '', l.pklTotal || '', l.hasInb ? l.base - l.it.qty : '',
+      isNaN(l.it.price) ? '' : l.it.price, l.inbPrices.join(' / '),
+      isNaN(l.it.amount) ? '' : l.it.amount, l.hasInb ? l.inbAmount : '',
+      (l.hasInb && !isNaN(l.it.amount)) ? l.inbAmount - l.it.amount : '',
+      l.status, l.note], false,
+      l.status === 'KHỚP' ? null : (red ? 'FFFFC7CE' : 'FFFFF2CC'));
+    if (red) rs.getCell(rr, 14).font = { bold: true, color: { argb: 'FFC00000' } };
+  }
+  R++;
+  const bad = lines.filter((l) => !['KHỚP', 'CHƯA CÓ INBOUND'].includes(l.status));
+  for (const l of bad) {
+    put(R++, [`${l.it.code} / ${l.it.po} → ${l.sapPo}`], true);
     if (l.diffs.length) {
-      h += `<tr class="sub"><td></td><td colspan="10"><table class="inner"><thead><tr><th>PKL Invoice</th><th>Size</th><th class="n">Inbound</th><th class="n">Packing list</th><th class="n">Lệch</th></tr></thead><tbody>`;
-      for (const d of l.diffs) h += `<tr><td>${esc(l.pklCodes.join(', '))}</td><td>${esc(d.size)}</td><td class="n">${d.inb.toLocaleString('vi-VN')}</td><td class="n">${d.pkl.toLocaleString('vi-VN')}</td><td class="n bad">${d.diff.toLocaleString('vi-VN')}</td></tr>`;
-      h += '</tbody></table></td></tr>';
+      put(R++, ['', 'PKL Invoice', 'Size', 'SL inbound', 'SL packing', 'Lệch'], true, 'FFEEEEEE');
+      for (const d of l.diffs) put(R++, ['', l.pklCodes.join(', '), d.size, d.inb, d.pkl, d.diff]);
     }
     if (l.poRows.length) {
-      h += `<tr class="sub"><td></td><td colspan="10"><div class="hint">Dòng có trong file PO SCAF-SCAX nhưng thiếu trong file inbound:</div><table class="inner"><thead><tr><th>Specification</th><th>Size</th><th class="n">SL PO</th></tr></thead><tbody>`;
-      for (const p of l.poRows) h += `<tr><td>${esc(p.spec)}</td><td>${esc(p.size)}</td><td class="n">${(p.qty || 0).toLocaleString('vi-VN')}</td></tr>`;
-      h += `<tr><td colspan="2"><b>Tổng</b></td><td class="n"><b>${l.poRows.reduce((a, b) => a + (isNaN(b.qty) ? 0 : b.qty), 0).toLocaleString('vi-VN')}</b></td></tr></tbody></table></td></tr>`;
+      put(R++, ['', 'Dòng có trong file PO nhưng thiếu trong inbound:'], true);
+      put(R++, ['', 'Specification', 'Size', 'SL PO', 'Đơn giá'], true, 'FFEEEEEE');
+      for (const p of l.poRows) put(R++, ['', p.spec, p.size, p.qty, p.price]);
+      put(R++, ['', 'Tổng', '', l.poRows.reduce((a, b) => a + (isNaN(b.qty) ? 0 : b.qty), 0)], true);
+    }
+    if (l.priceBad || l.amtBad) {
+      put(R++, ['', 'Đơn giá hóa đơn', isNaN(l.it.price) ? '' : l.it.price, 'Đơn giá inbound', l.inbPrices.join(' / ')], false, 'FFFFC7CE');
+      put(R++, ['', 'Thành tiền hóa đơn', isNaN(l.it.amount) ? '' : l.it.amount, 'Thành tiền inbound', l.inbAmount,
+        'Lệch', isNaN(l.it.amount) ? '' : l.inbAmount - l.it.amount], false, 'FFFFC7CE');
+    }
+    if (!l.diffs.length && !l.poRows.length && !(l.priceBad || l.amtBad)) put(R++, ['', l.note]);
+    R++;
+  }
+  if (!bad.length) put(R++, ['Tất cả các dòng khớp số lượng và giá trị.'], true);
+  return R + 1;
+}
+
+/* ================= Báo cáo tổng hợp nhiều hóa đơn ================= */
+function buildSummaryWorkbook(wb, all) {
+  const head = (ws, arr, widths) => {
+    widths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
+    ws.addRow(arr);
+    ws.getRow(1).font = { bold: true };
+    ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDEBF7' } };
+  };
+  const paint = (ws, fill) => { if (fill) ws.getRow(ws.rowCount).eachCell((c) => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } }; }); };
+
+  const s = wb.addWorksheet('TONG HOP');
+  head(s, ['Hóa đơn', 'Ngày', 'Packing list', 'Inbound', 'Số dòng', 'Dòng cần xem lại', 'Tiền hàng (HĐ)',
+    'Đối chiếu được (HĐ)', 'Theo inbound', 'Lệch tiền', 'Kết luận', 'File hóa đơn'],
+    [20, 12, 12, 12, 10, 16, 16, 18, 16, 14, 44, 34]);
+  for (const a of all) {
+    const bad = a.lines.filter((l) => !['KHỚP', 'CHƯA CÓ INBOUND'].includes(l.status));
+    const concl = !a.VAL.hasInb ? 'CHƯA CÓ INBOUND — cần tạo inbound trên SAP'
+      : a.VAL.valueBad ? '⚠ HÓA ĐƠN SAI GIÁ TRỊ – CẦN KIỂM TRA LẠI'
+        : bad.length ? `${bad.length} dòng lệch — xem sheet CHI TIET`
+        : (a.VAL.pendingLines.length ? `${a.VAL.pendingLines.length} dòng chưa điền Invoice Quantity` : 'Khớp toàn bộ');
+    s.addRow([a.inv.invNo, a.inv.invDate, a.g.pkl ? 'có' : 'không', a.g.inb ? 'có' : 'chưa có',
+      a.lines.length, bad.length, a.VAL.invTotal,
+      a.VAL.cmpCount ? a.VAL.invCmpTotal : '', a.VAL.cmpCount ? a.VAL.inbTotal : '',
+      a.VAL.cmpCount ? a.VAL.totalDiff : '', concl, a.g.inv.file.name]);
+    paint(s, a.VAL.valueBad ? 'FFFFC7CE' : (bad.length || !a.VAL.hasInb ? 'FFFFF2CC' : null));
+  }
+
+  const d = wb.addWorksheet('CHI TIET');
+  head(d, ['Hóa đơn', 'Ngày', 'Item', 'PO (hóa đơn)', 'Loại PO', 'PO SAP', 'SL hóa đơn', 'SL inbound', 'SL packing',
+    'Lệch SL', 'Đơn giá HĐ', 'Đơn giá inbound', 'Thành tiền HĐ', 'Thành tiền inbound', 'Lệch tiền', 'Kết quả', 'Ghi chú'],
+    [20, 12, 11, 18, 9, 13, 11, 11, 11, 10, 11, 14, 14, 15, 12, 15, 70]);
+  for (const a of all) {
+    for (const l of a.lines) {
+      d.addRow([a.inv.invNo, a.inv.invDate, l.it.code, l.it.po, l.it.poVia || '', l.sapPo || '', l.it.qty,
+        l.hasInb ? l.base : '', l.pklTotal || '', l.hasInb ? l.base - l.it.qty : '',
+        isNaN(l.it.price) ? '' : l.it.price, l.inbPrices.join(' / '),
+        isNaN(l.it.amount) ? '' : l.it.amount, l.hasInb ? l.inbAmount : '',
+        (l.hasInb && !isNaN(l.it.amount)) ? l.inbAmount - l.it.amount : '', l.status, l.note]);
+      paint(d, (l.priceBad || l.amtBad) ? 'FFFFC7CE' : (['KHỚP', 'CHƯA CÓ INBOUND'].includes(l.status) ? null : 'FFFFF2CC'));
     }
   }
+
+  const z = wb.addWorksheet('LECH SIZE');
+  head(z, ['Hóa đơn', 'Item', 'PO SAP', 'PKL Invoice', 'Size', 'SL inbound', 'SL packing', 'Lệch'],
+    [20, 11, 13, 13, 12, 12, 12, 10]);
+  for (const a of all) {
+    for (const l of a.lines) {
+      if (!l.hasInb || !l.hasPkl || !l.useInv) continue;
+      for (const df of l.diffs) {
+        z.addRow([a.inv.invNo, l.it.code, l.sapPo, l.pklCodes.join(', '), df.size, df.inb, df.pkl, df.diff]);
+        paint(z, 'FFFFF2CC');
+      }
+    }
+  }
+  if (z.rowCount === 1) z.addRow(['Không có size nào lệch giữa inbound và packing list.']);
+
+  const p = wb.addWorksheet('DANH SACH PO');
+  head(p, ['PO No.', 'PO No ScaX', 'Hóa đơn', 'SL', 'Thành tiền', 'Đã có inbound'], [16, 22, 30, 12, 15, 14]);
+  const m = new Map();
+  for (const a of all) {
+    for (const l of a.lines) {
+      if (!l.sapPo) continue;
+      const k = l.sapPo.toUpperCase();
+      if (!m.has(k)) m.set(k, { sap: l.sapPo, scax: l.it.poScax || '', invs: new Set(), qty: 0, amt: 0, inb: !!a.g.inb });
+      const e = m.get(k);
+      e.invs.add(a.inv.invNo); e.qty += l.it.qty || 0; e.amt += isNaN(l.it.amount) ? 0 : l.it.amount;
+      if (!e.scax && l.it.poScax) e.scax = l.it.poScax;
+      if (a.g.inb) e.inb = true;
+    }
+  }
+  [...m.values()].sort((x, y) => x.sap.localeCompare(y.sap))
+    .forEach((e) => p.addRow([e.sap, e.scax, [...e.invs].join(', '), e.qty, e.amt, e.inb ? 'có' : 'chưa']));
+
+  for (const a of all) {
+    const name = ('HD ' + (a.inv.no || a.inv.invNo)).slice(0, 28).replace(/[\\\/\?\*\[\]:]/g, '');
+    const ws = wb.addWorksheet(name);
+    writeInvoiceReport(ws, 1, a.inv, a.lines, a.VAL, a.g, true);
+  }
+}
+
+/* ================= Hiển thị ================= */
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+function renderAll(all) {
+  let h = '';
+  const nBad = all.filter((a) => a.VAL.valueBad).length;
+  const nNoInb = all.filter((a) => !a.VAL.hasInb).length;
+  h += `<div class="sum"><div><span>Hóa đơn</span><b>${all.length}</b></div>
+    <div><span>Sai giá trị</span><b class="${nBad ? 'bad' : 'good'}">${nBad}</b></div>
+    <div><span>Chưa có inbound</span><b class="${nNoInb ? 'bad' : 'good'}">${nNoInb}</b></div>
+    <div><span>Tổng tiền hàng</span><b>${fmt(all.reduce((s, a) => s + (a.VAL.invTotal || 0), 0))}</b></div></div>`;
+  for (const a of all) {
+    const bad = a.lines.filter((l) => !['KHỚP', 'CHƯA CÓ INBOUND'].includes(l.status));
+    const cls = a.VAL.valueBad ? 'bad' : (bad.length || !a.VAL.hasInb ? 'warn' : 'ok');
+    h += `<details class="inv ${cls}" ${a.VAL.valueBad || bad.length ? 'open' : ''}>
+      <summary><b>${esc(a.inv.invNo)}</b> · ${esc(a.inv.invDate)} · ${a.lines.length} dòng ·
+      ${a.VAL.hasInb ? '' : '<span class="tag bad">CHƯA CÓ INBOUND</span> '}
+      ${a.g.pkl ? '' : '<span class="tag warnt">không có packing list</span> '}
+      ${a.VAL.valueBad ? '<span class="tag bad">SAI GIÁ TRỊ</span> ' : (bad.length ? `<span class="tag warnt">${bad.length} dòng lệch</span> ` : '<span class="tag good">khớp</span> ')}
+      <span class="mono">${fmt(a.VAL.invTotal)}</span></summary>`;
+    if (a.VAL.valueBad) {
+      h += `<div class="alert"><div class="ttl">⚠ HÓA ĐƠN NÀY SAI GIÁ TRỊ — CẦN KIỂM TRA LẠI</div>
+        <div class="lines"><span>Tiền hàng HĐ: <b>${fmt(a.VAL.invTotal)}</b></span><span>Theo inbound: <b>${fmt(a.VAL.inbTotal)}</b></span><span>Lệch: <b>${a.VAL.totalDiff > 0 ? '+' : ''}${fmt(a.VAL.totalDiff)}</b></span></div>
+        ${a.VAL.valueLines.map((l) => `<div class="li">• <b>${esc(l.it.code)} / ${esc(l.it.po)}</b>: ${esc(l.note)}</div>`).join('')}</div>`;
+    }
+    h += '<table><thead><tr><th>Item</th><th>PO</th><th>PO SAP</th><th class="n">SL HĐ</th><th class="n">SL inbound</th><th class="n">SL packing</th><th class="n">Giá HĐ</th><th class="n">Giá inb.</th><th>Kết quả</th><th>Ghi chú</th></tr></thead><tbody>';
+    for (const l of a.lines) {
+      const ok = l.status === 'KHỚP';
+      h += `<tr class="${ok ? '' : 'warn'}"><td>${esc(l.it.code)}</td>
+        <td>${esc(l.it.po)}${l.it.poVia ? ` <span class="tag via">${esc(l.it.poVia)}</span>` : ''}</td>
+        <td>${esc(l.sapPo || '—')}</td><td class="n">${fmt(l.it.qty)}</td>
+        <td class="n">${l.hasInb ? fmt(l.base) : '—'}</td><td class="n">${l.pklTotal ? fmt(l.pklTotal) : '—'}</td>
+        <td class="n">${fmt(l.it.price)}</td><td class="n ${l.priceBad ? 'bad' : ''}"><b>${l.inbPrices.map(fmt).join(' / ') || '—'}</b></td>
+        <td><span class="tag ${ok ? 'good' : 'bad'}">${esc(l.status)}</span></td><td class="note">${esc(l.note)}</td></tr>`;
+    }
+    h += '</tbody></table></details>';
+  }
+  $('#report').innerHTML = h;
+}
+
+function renderPoTable(list, unresolved) {
+  let h = `<div class="sum"><div><span>Số PO</span><b>${list.length}</b></div><div><span>Hóa đơn</span><b>${STATE.groups.length}</b></div>${unresolved.length ? `<div><span>Không tra được</span><b class="bad">${unresolved.length}</b></div>` : ''}</div>`;
+  h += '<table><thead><tr><th>PO No.</th><th>PO No ScaX</th><th>Hóa đơn</th><th class="n">SL</th><th class="n">Thành tiền</th></tr></thead><tbody>';
+  for (const e of list) {
+    h += `<tr><td><b>${esc(e.sap)}</b></td><td>${esc(e.scax) || '<span class="miss">(ScaF)</span>'}</td>
+      <td class="note">${esc([...e.invs].join(', '))}</td><td class="n">${fmt(e.qty)}</td><td class="n">${fmt(e.amount)}</td></tr>`;
+  }
   h += '</tbody></table>';
+  if (unresolved.length) {
+    h += '<div class="hint">Không tra được PO:</div><table class="inner"><thead><tr><th>Hóa đơn</th><th>Item</th><th>Mã PO trên hóa đơn</th></tr></thead><tbody>';
+    unresolved.forEach((x) => { h += `<tr><td>${esc(x.invNo)}</td><td>${esc(x.code)}</td><td>${esc(x.po)}</td></tr>`; });
+    h += '</tbody></table>';
+  }
   $('#report').innerHTML = h;
 }
 
@@ -899,17 +1232,26 @@ zone.addEventListener('click', () => zoneInput.click());
 zoneInput.addEventListener('change', (e) => { acceptFiles(e.target.files); e.target.value = ''; });
 ['dragenter', 'dragover'].forEach((ev) => zone.addEventListener(ev, (e) => { e.preventDefault(); zone.classList.add('drag'); }));
 ['dragleave', 'dragend'].forEach((ev) => zone.addEventListener(ev, () => zone.classList.remove('drag')));
-zone.addEventListener('drop', (e) => { e.preventDefault(); zone.classList.remove('drag'); acceptFiles(e.dataTransfer.files); });
-// thả file ở bất kỳ đâu trên trang cũng được
 document.addEventListener('dragover', (e) => e.preventDefault());
-document.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer && e.dataTransfer.files.length) acceptFiles(e.dataTransfer.files); });
-
-for (const k of Object.keys(FILES)) {
-  const el = $('#slot-' + k), inp = el.querySelector('input');
-  el.addEventListener('click', () => inp.click());
-  inp.addEventListener('change', (e) => { acceptFiles(e.target.files, k); e.target.value = ''; });
+async function onDrop(e) {
+  e.preventDefault(); zone.classList.remove('drag');
+  if (!e.dataTransfer) return;
+  const files = await filesFromDataTransfer(e.dataTransfer);
+  acceptFiles(files);
 }
+zone.addEventListener('drop', onDrop);
+document.addEventListener('drop', onDrop);
 $('#run').addEventListener('click', run);
+$('#runpo').addEventListener('click', runPoList);
+$('#clear').addEventListener('click', () => {
+  STATE.items = []; STATE.groups = []; STATE.po = null; STATE.poIdx = null;
+  OUTPUTS.length = 0;
+  $('#report').innerHTML = ''; $('#log').innerHTML = ''; $('#dls').innerHTML = ''; $('#groups').innerHTML = ''; $('#detect').textContent = '';
+  renderSlots();
+});
+$('#dlall').addEventListener('click', () => {
+  OUTPUTS.forEach((o, i) => setTimeout(() => $('#dlx' + i).click(), i * 400));
+});
 renderSlots();
 </script>
 </body>
