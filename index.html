@@ -82,13 +82,13 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
 </head>
 <body>
 <div class="wrap">
-  <h1>Inbound SAP – Đối chiếu hóa đơn <span class="ver">v9 · 28.09.2026 · thêm chủ hàng vải</span></h1>
-  <p class="sub">Kéo cả thư mục (nhiều hóa đơn) vào đây. Công cụ tự nhận diện <b>chủ hàng</b> và loại file — trimming (hóa đơn PDF) hoặc vải (chứng từ Excel của Techwork / New Style–BLAO / Quanzhou Hengyu) — ghép thành từng bộ rồi đối chiếu. Chưa có inbound thì xuất <b>danh sách PO</b> để tạo trên SAP; chưa có packing list thì chỉ đối chiếu với hóa đơn. Mọi xử lý chạy trong trình duyệt.</p>
+  <h1>Inbound SAP – Đối chiếu hóa đơn <span class="ver">v10 · 30.09.2026 · 6 chủ hàng</span></h1>
+  <p class="sub">Kéo cả thư mục (nhiều hóa đơn) vào đây. Công cụ tự nhận diện <b>chủ hàng</b> và loại file — trimming (hóa đơn PDF của ITL, Inkava) hoặc vải (chứng từ Excel của Techwork, New Style–BLAO, Quanzhou Hengyu, J&amp;H Yubo) — ghép thành từng bộ rồi đối chiếu. Chưa có inbound thì xuất <b>danh sách PO</b> để tạo trên SAP; chưa có packing list thì chỉ đối chiếu với hóa đơn. Mọi xử lý chạy trong trình duyệt.</p>
 
   <div class="card">
     <div class="drop" id="dropall">
       <div class="t">Kéo–thả thư mục hoặc nhiều file vào đây</div>
-      <div class="d">Hóa đơn .pdf · Packing list .pdf · Chứng từ vải .xlsx (HĐ + PKL trong cùng file) · File inbound .xlsx · PO SCAF-SCAX .xlsx — nhận diện theo nội dung, không theo tên file</div>
+      <div class="d">Hóa đơn .pdf · Packing list .pdf hoặc .xlsx (theo PO) · Chứng từ vải .xlsx (HĐ + PKL cùng file) · File inbound .xlsx · PO SCAF-SCAX .xlsx — nhận diện theo nội dung, không theo tên file</div>
       <input type="file" multiple accept=".pdf,.xlsx,.xlsm">
     </div>
     <div id="detect" class="hint"></div>
@@ -147,6 +147,30 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
         Hengyu dùng sheet <code>码单</code> (<code>LOT#</code>), BLAO dùng các sheet lô <code>Y92296…</code>. Báo cáo có sheet <code>CHI TIET LO</code>.</li>
         <li>Thành tiền: Techwork tính <code>SL × đơn giá + phụ phí</code>; BLAO và Hengyu ghi <code>SL × đơn giá</code>, phụ phí là dòng riêng.</li>
       </ul>
+      <div class="hint" style="margin-top:12px"><b>J&amp;H Yubo</b> (v10)</div>
+      <ul class="rules">
+        <li>Chứng từ là sheet <code>PKL</code> nội bộ: mỗi dòng là một <b>lô</b> của một mã vải + màu. Nhiều dòng cùng
+        (<em>SCAVI CODE</em> + màu) được gộp thành một dòng đối chiếu, vì trong inbound chúng là cùng một dòng PO.</li>
+        <li>Khóa dò: <b>SCAVI CODE</b> (khớp với đầu cột <em>Material</em> của inbound) + màu. Đơn vị KG theo cột <em>Cân nặng (KG)</em>.</li>
+        <li>Ô PO ghi nhiều mã (<code>J&amp;H0009000 / J&amp;H0008500 / …</code>) → dò trong tất cả các PO đó.</li>
+        <li><b>Cùng mã Material nằm ở nhiều PO</b> → chia theo <b>PO cũ trước (FIFO)</b>: lấp đầy phần còn nhận được của
+        PO số nhỏ nhất, thừa thì tràn sang PO kế tiếp; trạng thái <code>KHỚP (chia nhiều PO)</code> và có sheet
+        <code>PHAN BO PO</code> để kiểm lại.</li>
+        <li>Chưa có số hóa đơn (ô <code>HD:</code> trống) → vẫn xuất, để trống cột <em>Invoice Number</em> và cảnh báo vàng.</li>
+        <li>Cột có chữ <em>comment</em> (vd "Mỹ Ngọc comment 29Sep") chỉ dùng để <b>nhắc</b> khi khác cột Cân nặng, không lấy số.</li>
+      </ul>
+      <div class="hint" style="margin-top:12px"><b>Inkava</b> — hóa đơn PDF + packing list Excel theo PO (v10)</div>
+      <ul class="rules">
+        <li>Hóa đơn GTGT dạng khác: PO nằm ở dòng <b>trước</b> dòng số lượng, mã hàng ở dòng <b>sau</b>
+        (<code>PODUY0095800- Label L56xW20MM-</code> / <code>1 PCS 16.988,00 100 1.698.800</code> / <code>ALABPRWV0228</code>).
+        Nhận ra khi bảng hàng không có dấu <code>//</code> mà có dòng bắt đầu bằng <code>PO&lt;mã&gt;</code>.</li>
+        <li>Packing list là file .xlsx riêng cho <b>từng PO</b> (có <code>PO No:</code> và cột <code>Material Code</code>) — một hóa đơn nhiều PO thì thả nhiều file.</li>
+        <li>Vì packing list có sẵn <em>Material Code + Size + Spec</em>, công cụ <b>điền Invoice Quantity cho từng dòng inbound</b>
+        thay vì bắt điền tay.</li>
+        <li>Packing list gộp nhiều <em>Order No</em> mà tổng không bằng hóa đơn → chọn đúng nhóm Order No có tổng bằng hóa đơn
+        (vd tổng file 29.742 nhưng hóa đơn 16.988 → lấy nhóm <code>112568 P27</code>), và nói rõ trong ghi chú.</li>
+        <li>Mã PO không tra được qua file PO SCAF-SCAX nhưng có sẵn trong cột A của file inbound → dùng luôn mã đó.</li>
+      </ul>
     </details>
   </div>
 
@@ -192,11 +216,13 @@ const WORDS = (s) => [...new Set((String(s == null ? '' : s).toUpperCase().match
 /* PO chuẩn SAP = chữ cái + phần số bù 0 cho đủ 7 chữ số.
    TEC002400 → TEC0002400 · SRV0000400 → SRV0000400 · HYU0001700 → HYU0001700 */
 function poSap(raw) {
-  const m = String(raw == null ? '' : raw).toUpperCase().match(/([A-Z]{2,6})\s*-?\s*0*(\d{1,10})/);
+  const m = String(raw == null ? '' : raw).toUpperCase().match(/([A-Z][A-Z&]{1,7})\s*-?\s*0*(\d{1,10})/);
   if (!m) return String(raw == null ? '' : raw).trim().toUpperCase();
   return m[1] + m[2].padStart(7, '0');
 }
 const poSame = (a, b) => !!a && !!b && poSap(a) === poSap(b);
+/* một ô có thể ghi nhiều PO: "J&H0009000 / J&H0008500" */
+const poListOf = (raw) => [...new Set((String(raw == null ? '' : raw).toUpperCase().match(/[A-Z][A-Z&]{1,7}\s*-?\s*\d{4,}/g) || []).map(poSap))];
 
 const UNIT_ALIAS = {
   M: 'M', MT: 'M', MTR: 'M', MTS: 'M', METER: 'M', METERS: 'M', METRE: 'M', METRES: 'M',
@@ -210,21 +236,48 @@ const unitKey = (s) => UNIT_ALIAS[AZ(s)] || AZ(s);
    "BLACK 19-4201 TSX_NLK107341 SHADE C" ↔ "BLACK 19-4201TSX"   (hóa đơn dài hơn)
    "SOLID11-4002 TSX … Powdered Sugar" ↔ "POWDERED SUGAR 11-4002TSX" (đảo thứ tự)
    Trả về điểm 0–4, 0 = không khớp.                                          */
-function colorScore(invText, inbColor) {
-  const a = AZ(invText), b = AZ(inbColor);
-  if (!b || !a) return 0;
-  if (a === b) return 4;
-  if (a.startsWith(b) || b.startsWith(a)) return 4;
-  if (a.includes(b)) return 3;
-  const toks = WORDS(inbColor);
-  if (toks.length && toks.every((t) => a.includes(t))) return 3;
-  const shared = toks.filter((t) => a.includes(t)).length;
-  if (toks.length && shared >= 2) return 2;
-  if (toks.length === 1 && shared === 1) return 2;
+/* Bỏ phần "phụ" trong tên màu để chỉ còn lõi màu thật:
+   "AL5 NIDUS (MATCHING COLOR W F25-LCST-002)" → "AL5 NIDUS"
+   "UGW MARINE matching color w F25-LCST-004"  → "UGW MARINE"
+   "70V FARINE (Non organic)"                  → "70V FARINE"
+   Nếu bỏ hết thì giữ nguyên chuỗi gốc.                                      */
+const COLOR_STOP = /\b(MATCHING|MATCH|NON[- ]?ORGANIC|ORGANIC|SHADE|COLOUR|COLOR|SOLID|FABRIC|FAB)\b/;
+function colorCore(raw) {
+  let t = String(raw == null ? '' : raw).toUpperCase().replace(/[\r\n]+/g, ' ');
+  t = t.replace(/\([^)]*\)/g, ' ');                       // chú thích trong ngoặc
+  const m = t.search(COLOR_STOP);
+  if (m > 0) t = t.slice(0, m);
+  t = t.replace(/\b[A-Z]\d{2}-[A-Z]{2,6}-\d+[A-Z0-9]*\b/g, ' ');  // mã style F25-LCST-002
+  t = t.replace(/\bW\b/g, ' ').replace(/\s+/g, ' ').trim();
+  return t || String(raw == null ? '' : raw).toUpperCase().trim();
+}
+
+/* So màu theo thang từ chắc chắn đến mờ nhạt (10 → 0).
+   invColor = ô màu trên chứng từ · inbColor = cột Color của inbound
+   wide     = thêm mô tả/mã màu của chứng từ, dùng cho phép thử "có chứa"        */
+function colorScore(invColor, inbColor, wide) {
+  const a = AZ(invColor), b = AZ(inbColor);
+  if (!a || !b) return 0;
+  if (a === b) return 10;                                   // giống hệt
+  if (a.startsWith(b) || b.startsWith(a)) return 9;         // một bên là tiền tố
+  if (a.includes(b) || b.includes(a)) return 8;             // một bên nằm trong bên kia
+  const w = AZ(String(wide == null ? '' : wide) + ' ' + String(invColor));
+  if (w.includes(b)) return 7;                              // tên màu inbound có trong mô tả
+  const ca = AZ(colorCore(invColor)), cb = AZ(colorCore(inbColor));
+  if (ca && cb) {
+    if (ca === cb) return 6;                                // trùng lõi màu
+    if (ca.startsWith(cb) || cb.startsWith(ca) || ca.includes(cb) || cb.includes(ca)) return 5;
+  }
+  const toks = WORDS(colorCore(inbColor));
+  if (!toks.length) return 0;
+  const shared = toks.filter((t) => w.includes(t)).length;
+  if (shared === toks.length) return 4;                     // đủ mọi từ của lõi màu (kể cả đảo thứ tự)
+  if (shared >= 1 && shared / toks.length >= 0.5) return 3;  // quá nửa số từ
   return 0;
 }
+
 /* số từ (≥3 ký tự) dùng chung — dùng để ghép lô/cây với dòng hóa đơn */
-const shareWords = (a, b) => { const B = WORDS(b); return WORDS(a).filter((w) => B.includes(w)).length; };
+const shareWords = (a, b) => { const B = WORDS(colorCore(b)); return WORDS(colorCore(a)).filter((w) => B.includes(w)).length; };
 
 /* mã article = phần đầu mô tả, cắt ở " - " (khoảng trắng hai bên) hoặc xuống dòng:
    "DA-DNS2693 Solid" → DA-DNS2693 · "HY-N403420FDY - FAB NY/SP\n85/15…" → HY-N403420FDY */
@@ -338,6 +391,7 @@ function fabProfile(wb) {
   if (/QTY\s*\/\s*M/.test(t) && /SURCHARGE/.test(t) && names.includes('PACKING LIST')) return 'TECHWORK';
   if (/11\.\s*PO NUMBER/.test(t) && /QUANTITY\s*\/\s*UNIT/.test(t)) return 'BLAO';
   if (/MARKS\s*&\s*NOS/.test(t) && /INV\.?\s*NO/.test(t)) return 'HYU';
+  if (/SCAVI\s*CODE/.test(t) && /PACKING LIST/.test(t)) return 'YUBO';
   return '';
 }
 
@@ -550,7 +604,7 @@ function readHyu(wb) {
     const desc = T(wi, r, C.desc);
     const art = artOf(desc);
     items.push({
-      poRaw: po, po: poSap(po), article: art, colorText: desc, colorCode: '',
+      poRaw: po, po: poSap(po), article: art, colorText: (desc.split(/[\r\n]/).map((x) => x.trim()).filter(Boolean).pop() || desc), colorCode: '',
       colorShort: (desc.split(/[\r\n]/).map((x) => x.trim()).filter(Boolean).pop() || '').slice(0, 40),
       desc, qtyByUnit: { [unit]: q }, unit, qty: q,
       price: p, surcharge: 0, amount: N(wi, r, C.amt),
@@ -598,11 +652,107 @@ function readHyu(wb) {
   };
 }
 
+/* =====================  YUBO (J&H Yubo) — packing list kèm đơn giá  =====================
+   Chứng từ là một bảng PKL nội bộ: mỗi dòng là MỘT LÔ (Lot) của một mã vải + màu.
+   Nhiều dòng cùng (SCAVI CODE + màu) sẽ gộp lại thành một dòng đối chiếu, vì trong
+   file inbound chúng là cùng một dòng PO.  Ô PO ghi nhiều PO: "J&H0009000 / J&H0008500".  */
+function readYubo(wb) {
+  const ws = wb.worksheets.find((w) => /^PKL$/i.test(String(w.name).trim()))
+    || wb.worksheets.find((w) => findRow(w, /SCAVI\s*CODE/i, 30));
+  const hr = findRow(ws, /SCAVI\s*CODE/i, 30);
+  const C = {
+    name: colBy(ws, hr, /Item.*name/i), code: colBy(ws, hr, /SCAVI\s*CODE/i),
+    po: colBy(ws, hr, /^PO$/i) || colBy(ws, hr, /\bPO\b/i), color: colBy(ws, hr, /Colo/i),
+    lot: colBy(ws, hr, /^Lot$/i) || colBy(ws, hr, /\bLot\b/i),
+    roll: colBy(ws, hr, /ROLL/i), qty: colBy(ws, hr, /C[âa]n n[ặa]ng|\(KG\)/i),
+    gw: colBy(ws, hr, /Gross/i), price: colBy(ws, hr, /Đ[ơo]n gi[áa]|Price/i),
+    amt: colBy(ws, hr, /AMOUNT/i),
+  };
+  /* cột bình luận của người kiểm (tên cột có chữ "comment") — chỉ dùng để nhắc, không lấy số */
+  let cCmt = 0;
+  for (let c = 1; c <= 24; c++) if (/comment/i.test(T(ws, hr, c))) { cCmt = c; break; }
+
+  /* số & ngày hóa đơn: nhãn "HD:" và "Ngày xuất HD:" ở góc trên */
+  let no = '', invDate = '';
+  const rHd = findRow(ws, /\bHD\s*:/i, 12);
+  if (rHd) {
+    for (let r = 1; r <= Math.min(12, ws.rowCount); r++) {
+      for (let c = 1; c <= 24; c++) {
+        const t = T(ws, r, c);
+        if (/Ng[àa]y xu[ấa]t\s*HD/i.test(t)) {
+          for (let k = c + 1; k <= c + 4; k++) { const d = parseDateCell(V(ws, r, k)) || parseDateCell(T(ws, r, k)); if (d) { invDate = d; break; } }
+        } else if (/^HD\s*:?$/i.test(t) && !no) {
+          for (let k = c + 1; k <= c + 4; k++) { const v = T(ws, r, k); if (v) { no = v; break; } }
+        }
+      }
+    }
+  }
+
+  const map = new Map();
+  let total = NaN, totalVat = NaN;
+  for (let r = hr + 1; r <= ws.rowCount; r++) {
+    if (/T[ổo]ng c[ộo]ng/i.test(rowText(ws, r))) {
+      total = N(ws, r, C.amt);
+      totalVat = N(ws, r, C.amt + 1);
+      break;
+    }
+    const q = N(ws, r, C.qty), code = T(ws, r, C.code);
+    if (!code || isNaN(q) || q <= 0) continue;
+    const color = T(ws, r, C.color);
+    const key = AZ(code) + '|' + AZ(color);
+    let it = map.get(key);
+    if (!it) {
+      it = {
+        poRaw: T(ws, r, C.po), poList: poListOf(T(ws, r, C.po)), po: poListOf(T(ws, r, C.po))[0] || poSap(T(ws, r, C.po)),
+        article: code, colorText: color, colorShort: color.replace(/[\r\n]+/g, ' ').trim(), colorCode: '',
+        desc: [T(ws, r, C.name), code, color].filter(Boolean).join(' · '),
+        qtyByUnit: { KG: 0 }, unit: 'KG', qty: 0,
+        price: N(ws, r, C.price), surcharge: 0, amount: 0,
+        code, lots: [], warn: [],
+      };
+      map.set(key, it);
+    }
+    it.qty = r3(it.qty + q);
+    it.qtyByUnit.KG = it.qty;
+    const a = N(ws, r, C.amt);
+    if (!isNaN(a)) it.amount = r3((it.amount || 0) + a);
+    const px = N(ws, r, C.price);
+    if (!isNaN(px) && isNaN(it.price)) it.price = px;
+    const lot = C.lot ? T(ws, r, C.lot) : '';
+    it.lots.push({ lot: lot || `dòng ${r}`, rolls: C.roll ? (N(ws, r, C.roll) || 0) : 0, qty: q, unit: 'KG' });
+    if (cCmt) {
+      const cm = N(ws, r, cCmt);
+      if (!isNaN(cm) && Math.abs(cm - q) > 0.01) it.warn.push(`lô ${lot}: cột "${T(ws, hr, cCmt)}" ghi ${cm} ≠ ${q}`);
+    }
+  }
+  const items = [...map.values()];
+  const groups = items.map((it) => ({
+    key: AZ(it.article) + '|' + AZ(it.colorText), po: '', poRaw: it.poRaw, article: it.article,
+    color: it.colorText, lot: '', unit: 'KG', rolls: [], total: it.qty,
+  }));
+  const lots = [];
+  items.forEach((it) => it.lots.forEach((L) => lots.push({
+    key: AZ(it.article) + '|' + AZ(it.colorText) + '|' + AZ(L.lot), po: '', article: it.article,
+    color: it.colorText, lot: L.lot, unit: 'KG',
+    rolls: new Array(Math.max(1, Math.round(L.rolls || 1))).fill(0).map((x, i) => ({ no: String(i + 1), qty: 0 })),
+    total: L.qty,
+  })));
+  return {
+    profile: 'YUBO', supplier: 'J&H Yubo',
+    inv: {
+      no, invNo: no, invDate, items, currency: 'VND', unitDefault: 'KG',
+      surchargeHeader: 0, total, totalVat, amountInclSur: false, noInvoiceNo: !no,
+    },
+    pkl: { groups, lots, unit: 'KG', level: 'lot' },
+  };
+}
+
 function readFab(wb) {
   const p = fabProfile(wb);
   if (p === 'TECHWORK') return readTechwork(wb);
   if (p === 'BLAO') return readBlao(wb);
   if (p === 'HYU') return readHyu(wb);
+  if (p === 'YUBO') return readYubo(wb);
   return null;
 }
 
@@ -619,11 +769,13 @@ function analyzeFab(inv, pkl, rows, opts) {
   const aTol = cur === 'VND' ? 1 : 0.02;        // sai số cho phép của thành tiền
   const lines = [];
   const lotSeen = [];
+  const consumed = new Map();   // dòng inbound -> số đã phân bổ trong hóa đơn này
 
   for (const it of inv.items) {
     /* ---- 1. lọc theo PO (bù 0 cho đủ 7 chữ số) ---- */
     let usedPo = it.po, poNote = '';
-    let poRows = rows ? rows.filter((r) => poSame(r.poV, usedPo)) : [];
+    const poWanted = (it.poList && it.poList.length) ? it.poList : [usedPo];
+    let poRows = rows ? rows.filter((r) => poWanted.some((p) => poSame(r.poV, p))) : [];
     if (rows && !poRows.length && opts.poIdx) {
       const cands = [it.poRaw, it.po].filter(Boolean).map((x) => String(x).toUpperCase());
       for (const t of cands) {
@@ -634,17 +786,20 @@ function analyzeFab(inv, pkl, rows, opts) {
         }
       }
     }
-    if (rows && poRows.length && poSap(it.poRaw) !== String(it.poRaw).toUpperCase().trim()) {
-      poNote += `PO trên hóa đơn ghi "${it.poRaw}" — đã bù 0 thành ${poSap(it.poRaw)}. `;
+    if (rows && poRows.length) {
+      if (poWanted.length > 1) poNote += `Ô PO ghi ${poWanted.length} mã (${poWanted.join(', ')}) — đã dò trong tất cả. `;
+      else if (poSap(it.poRaw) !== String(it.poRaw).toUpperCase().trim()) {
+        poNote += `PO trên hóa đơn ghi "${it.poRaw}" — đã bù 0 thành ${poSap(it.poRaw)}. `;
+      }
     }
 
     /* ---- 2. lọc theo mã article rồi chấm điểm màu ---- */
-    const invText = String(it.colorText || '') + ' ' + String(it.desc || '');
-    let pool = poRows.filter((r) => artHit(it.article, r.desc, r.spec, r.supRef));
+    const invText = [it.colorText, it.colorCode, it.desc].filter(Boolean).join(' ');
+    let pool = poRows.filter((r) => artHit(it.article, r.material, r.desc, r.spec, r.supRef));
     const artOK = pool.length > 0;
     if (!pool.length) pool = poRows;
     const scored = pool.map((r) => {
-      let s = colorScore(invText, r.color) * 3;
+      let s = colorScore(it.colorText, r.color, invText) * 3;
       const lt = WORDS(r.lapdip)[0];
       if (lt && lt.length >= 6 && (AZ(invText).includes(lt) || AZ(it.colorCode).includes(lt))) s += 2;
       if (!isNaN(r.price) && !isNaN(it.price) && Math.abs(r.price - it.price) <= pTol) s += 1;
@@ -652,8 +807,21 @@ function analyzeFab(inv, pkl, rows, opts) {
     });
     const best = scored.length ? Math.max(...scored.map((x) => x.s)) : -1;
     let hit = best > 0 ? scored.filter((x) => x.s === best).map((x) => x.r) : [];
-    const alt = pool.filter((r) => !hit.includes(r));
     if (!hit.length && pool.length === 1 && artOK) hit = [pool[0]];   // 1 dòng duy nhất trong PO + đúng article
+    /* còn nhiều dòng cùng điểm → thử tách bằng số lượng: chỉ giữ dòng mà SL hóa đơn
+       nằm trong khoảng PO cho phép, rồi ưu tiên dòng có Quantity đúng bằng SL hóa đơn */
+    let pickedByQty = false;
+    const sameMat = hit.length > 1 && new Set(hit.map((r) => AZ(r.material))).size === 1;
+    if (hit.length > 1 && !sameMat) {
+      const qAny = it.qtyByUnit[unitKey(hit[0].unit)] != null ? it.qtyByUnit[unitKey(hit[0].unit)] : it.qty;
+      if (!isNaN(qAny)) {
+        const exact = hit.filter((r) => Math.abs((isNaN(r.qty) ? -1 : r.qty) - qAny) <= EPS);
+        const fits = hit.filter((r) => qAny <= (isNaN(r.overTol) ? (isNaN(r.qty) ? 0 : r.qty) : r.overTol) - (isNaN(r.deliv) ? 0 : r.deliv) + EPS);
+        if (exact.length === 1) { hit = exact; pickedByQty = true; }
+        else if (fits.length === 1) { hit = fits; pickedByQty = true; }
+      }
+    }
+    const alt = pool.filter((r) => !hit.includes(r));
 
     /* ---- 3. số lượng theo đúng đơn vị của inbound ---- */
     const units = [...new Set(hit.map((r) => unitKey(r.unit)).filter(Boolean))];
@@ -665,24 +833,62 @@ function analyzeFab(inv, pkl, rows, opts) {
     else if (!inbUnit && avail.length === 1) q = it.qtyByUnit[avail[0]];
     else { q = NaN; unitBad = true; }
 
-    /* ---- 4. giá trị, dung sai ---- */
-    const inbPrices = [...new Set(hit.map((h) => h.price).filter((v) => !isNaN(v)))].sort((a, b) => a - b);
-    const surSum = hit.reduce((a, h) => a + (isNaN(h.sur) ? 0 : h.sur), 0);
-    const qtyPo = hit.reduce((a, h) => a + (isNaN(h.qty) ? 0 : h.qty), 0);
-    const delivered = hit.reduce((a, h) => a + (isNaN(h.deliv) ? 0 : h.deliv), 0);
-    const overTol = hit.reduce((a, h) => a + (isNaN(h.overTol) ? (isNaN(h.qty) ? 0 : h.qty) : h.overTol), 0);
-    const hadQty = hit.reduce((a, h) => a + (isNaN(h.invQty) ? 0 : h.invQty), 0);
-    const inbAmount = (isNaN(q) ? 0 : q) * (inbPrices.length === 1 ? inbPrices[0] : (isNaN(it.price) ? 0 : it.price))
-      + (inv.amountInclSur ? surSum : 0);
-    const priceBad = hit.length > 0 && (inbPrices.length > 1
+    /* ---- 4. phân bổ số lượng vào (các) dòng inbound ----
+       Cùng một mã vải + màu có thể nằm trong nhiều PO với số Material y hệt nhau
+       (Yubo). Không có cách nào đọc ra PO đúng, nên chia theo PO cũ trước (FIFO):
+       lấp đầy phần còn nhận được của PO số nhỏ nhất, thừa thì tràn sang PO kế tiếp. */
+    const roomOf = (r) => (isNaN(r.overTol) ? (isNaN(r.qty) ? 0 : r.qty) : r.overTol)
+      - (isNaN(r.deliv) ? 0 : r.deliv) - (consumed.get(r) || 0);
+    const alloc = [];
+    let overflow = 0;
+    if (hit.length && !unitBad && !isNaN(q)) {
+      if (hit.length === 1) {
+        const rm = roomOf(hit[0]);
+        alloc.push({ r: hit[0], qty: q });
+        if (q > rm + EPS) overflow = r3(q - rm);
+      } else {
+        const order = hit.slice().sort((x, y) => String(x.poV).localeCompare(String(y.poV)));
+        let left = q;
+        for (const r of order) {
+          if (left <= EPS) break;
+          const rm = roomOf(r);
+          if (rm <= EPS) continue;
+          const take = r3(Math.min(left, rm));
+          alloc.push({ r, qty: take });
+          left = r3(left - take);
+        }
+        if (left > EPS) {
+          if (alloc.length) alloc[alloc.length - 1].qty = r3(alloc[alloc.length - 1].qty + left);
+          else alloc.push({ r: order[0], qty: q });
+          overflow = left;
+        }
+      }
+      alloc.forEach((x) => consumed.set(x.r, r3((consumed.get(x.r) || 0) + x.qty)));
+    }
+    const split = alloc.length > 1;
+
+    /* ---- 5. giá trị, dung sai ---- */
+    /* các số của PO tính trên đúng những dòng đã phân bổ, không phải mọi dòng ứng viên */
+    const used = alloc.length ? alloc.map((x) => x.r) : hit;
+    const inbPrices = [...new Set(used.map((h) => h.price).filter((v) => !isNaN(v)))].sort((a, b) => a - b);
+    const surSum = used.reduce((a, h) => a + (isNaN(h.sur) ? 0 : h.sur), 0);
+    const qtyPo = r3(used.reduce((a, h) => a + (isNaN(h.qty) ? 0 : h.qty), 0));
+    const delivered = r3(used.reduce((a, h) => a + (isNaN(h.deliv) ? 0 : h.deliv), 0));
+    const overTol = r3(used.reduce((a, h) => a + (isNaN(h.overTol) ? (isNaN(h.qty) ? 0 : h.qty) : h.overTol), 0));
+    const hadQty = r3(used.reduce((a, h) => a + (isNaN(h.invQty) ? 0 : h.invQty), 0));
+    const unitPrice = inbPrices.length === 1 ? inbPrices[0] : (isNaN(it.price) ? 0 : it.price);
+    const inbAmount = (isNaN(q) ? 0 : q) * unitPrice + (inv.amountInclSur ? surSum : 0);
+    const priceBad = used.length > 0 && (inbPrices.length > 1
       || (!isNaN(it.price) && inbPrices.length === 1 && Math.abs(inbPrices[0] - it.price) > pTol));
-    const amtBad = hit.length === 1 && !unitBad && !isNaN(it.amount) && !isNaN(q)
+    const amtBad = alloc.length > 0 && !unitBad && !isNaN(it.amount) && !isNaN(q)
       && Math.abs(inbAmount - it.amount) > aTol;
-    const room = overTol - delivered;
-    const overBad = hit.length > 0 && !isNaN(q) && q > room + EPS;
+    const room = r3(overTol - delivered);
+    const overBad = overflow > EPS;
 
     /* ---- 5. packing list: lô / cây ---- */
-    const gsOf = (arr) => (arr || []).filter((g) => (!g.po || poSame(g.po, it.po)) && colorScore(invText, g.color) >= 2);
+    const gsOf = (arr) => (arr || []).filter((g) => (!g.po || poWanted.some((p) => poSame(g.po, p)))
+      && (!g.article || !it.article || artHit(g.article, it.article) || artHit(it.article, g.article))
+      && colorScore(it.colorText, g.color, invText) >= 3);
     let pklTotal = 0, lots = [], pklSize = {};
     if (pkl) {
       const gs = gsOf(pkl.groups);
@@ -710,9 +916,9 @@ function analyzeFab(inv, pkl, rows, opts) {
     } else if (!hit.length) {
       status = 'THIẾU DÒNG';
       note += `PO ${usedPo} có ${poRows.length} dòng nhưng không dòng nào khớp article "${it.article}" + màu "${String(it.colorText).split(/[\r\n]/)[0]}"`;
-    } else if (hit.length > 1) {
+    } else if (hit.length > 1 && !sameMat) {
       status = 'CẦN KIỂM TAY';
-      note += `${hit.length} dòng inbound cùng điểm khớp (${hit.map((h) => h.color).join(' · ')}) — em không tự điền để tránh sai, anh chọn tay.`;
+      note += `${hit.length} dòng inbound cùng điểm khớp nhưng KHÁC mã Material (${[...new Set(hit.map((h) => h.material || h.color))].join(' · ')}) — em không tự điền để tránh sai, anh chọn tay.`;
     } else if (unitBad) {
       status = 'SAI ĐƠN VỊ';
       note += `Inbound tính bằng ${inbUnit || '(không rõ)'} nhưng hóa đơn chỉ có ${avail.join(' / ') || '(không rõ)'} — không so trực tiếp được.`;
@@ -723,10 +929,14 @@ function analyzeFab(inv, pkl, rows, opts) {
         + 'CẦN KIỂM TRA LẠI HÓA ĐƠN.';
     } else if (overBad) {
       status = 'VƯỢT DUNG SAI';
-      note += `SL hóa đơn ${q} ${inbUnit} vượt mức cho phép của PO (PO ${qtyPo}, tối đa ${overTol}, đã giao ${delivered} → còn ${Math.round(room * 1000) / 1000}) — SAP sẽ báo lỗi khi import.`;
+      note += `SL hóa đơn ${q} ${inbUnit} vượt mức cho phép của PO (PO ${qtyPo}, tối đa ${overTol}, đã giao ${delivered} → còn ${room}) — thừa ${overflow}, SAP sẽ báo lỗi khi import.`;
     } else if (pklBad) {
       status = 'LỆCH PKL';
       note += `Hóa đơn ${q} ${inbUnit} nhưng packing list ${pklTotal}` + (lots.length ? ` (${lots.length} lô: ` + lots.map((L) => `${L.lot} ${L.qty}`).join('; ') + ')' : '');
+    } else if (split) {
+      status = 'KHỚP (chia nhiều PO)';
+      note += `Mã + màu này có ở ${hit.length} PO với cùng số Material — đã chia theo PO cũ trước: `
+        + alloc.map((x) => `${x.r.poV} ${x.qty}`).join(' + ') + `. Kiểm lại nếu thứ tự PO khác.`;
     } else if (q > qtyPo + EPS) {
       status = 'KHỚP (trong dung sai)';
       note += `Giao ${q} ${inbUnit} vượt PO ${qtyPo} nhưng còn trong dung sai (tối đa ${overTol}).`;
@@ -736,16 +946,25 @@ function analyzeFab(inv, pkl, rows, opts) {
     } else {
       status = 'KHỚP';
     }
-    if (hit.length === 1 && !unitBad && !isNaN(q) && Math.abs(hadQty - q) > EPS) {
-      note += ` Đã ghi Invoice Quantity = ${q}` + (hadQty ? ` (file có sẵn ${hadQty})` : '') + '.';
+    if (alloc.length && !unitBad && !isNaN(q) && Math.abs(hadQty - q) > EPS) {
+      note += ` Đã ghi Invoice Quantity = ` + (split ? alloc.map((x) => `${x.qty} (${x.r.poV})`).join(' + ') : String(q))
+        + (hadQty ? ` (file có sẵn ${hadQty})` : '') + '.';
     }
+    if (pickedByQty) note += ' Nhiều dòng cùng điểm màu — đã tách bằng số lượng.';
+    if ((it.warn || []).length) note += ' ⚠ ' + it.warn.join('; ') + '.';
     if (alt.length && hit.length === 1 && status.indexOf('KHỚP') === 0) {
       note += ` (PO còn ${alt.length} dòng màu khác: ${alt.map((x) => x.color).slice(0, 3).join(' · ')})`;
     }
 
     /* ---- 7. ghi vào dòng inbound ---- */
-    const ok = hit.length === 1 && !unitBad && !isNaN(q);
-    if (ok) { hit[0].matched = it; hit[0].eff = q; hit[0].setQty = q; }
+    const ok = alloc.length > 0 && !unitBad && !isNaN(q);
+    if (ok) {
+      alloc.forEach((x) => {
+        x.r.matched = x.r.matched || it;
+        x.r.eff = r3((x.r.eff || 0) + x.qty);
+        x.r.setQty = r3((x.r.setQty || 0) + x.qty);
+      });
+    }
 
     const cs = String((hit.length === 1 && hit[0].color) ? hit[0].color : (it.colorShort || '')).replace(/\s+/g, ' ').trim().slice(0, 30);
     it.code = [it.article, cs].filter(Boolean).join(' · ') || it.code || '';
@@ -754,13 +973,15 @@ function analyzeFab(inv, pkl, rows, opts) {
     it.unitUsed = inbUnit;
 
     lines.push({
-      it, sapPo: poRows.length ? usedPo : '', hit, base: isNaN(q) ? 0 : q,
+      it, sapPo: poRows.length ? (alloc.length ? [...new Set(alloc.map((x) => x.r.poV))].join(' + ') : usedPo) : '', hit, base: isNaN(q) ? 0 : q,
       sumQty: qtyPo, sumInvQty: hadQty, pklCodes: lots.map((L) => L.lot), pklSize, pklTotal,
       bySize: pklBad ? {} : pklSize, diffs, poRows: [], status, note: note.trim(),
       inbPrices, inbAmount: ok ? Math.round(inbAmount * 1e6) / 1e6 : 0, priceBad, amtBad,
-      hasInb: !!rows, hasPkl: !!pkl, useInv: ok, matchBy: artOK ? 'PO + article + màu' : 'PO + màu',
-      ambiguous: hit.length > 1, usedVar: '', pickedByQty: false, altRows: alt.length,
+      hasInb: !!rows, hasPkl: !!pkl, useInv: ok,
+      matchBy: (artOK ? 'PO + article + màu' : 'PO + màu') + (pickedByQty ? ' + số lượng' : ''),
+      ambiguous: hit.length > 1, usedVar: '', pickedByQty, altRows: alt.length,
       isFab: true, lots, qtyPo, overTol, delivered, unitUsed: inbUnit,
+      alloc: alloc.map((x) => ({ po: x.r.poV, material: x.r.material, qty: x.qty })), split, overflow,
     });
   }
 
@@ -776,9 +997,9 @@ function analyzeFab(inv, pkl, rows, opts) {
   const otherLines = lines.filter((l) => !(l.priceBad || l.amtBad) && !okSt(l.status));
   const amtOf = (l) => l.inbAmount - (isNaN(l.it.amount) ? 0 : l.it.amount);
   const VAL = {
-    inbTotal, itemsTotal, invTotal, invCmpTotal, totalDiff,
+    inbTotal, itemsTotal, invTotal, invCmpTotal, totalDiff, noInvoiceNo: !!inv.noInvoiceNo,
     valueBad: valueLines.length > 0,
-    totalBad: cmp.length > 0 && Math.abs(totalDiff) > aTol,
+    totalBad: cmp.length > 0 && Math.abs(totalDiff) > aTol * Math.max(1, cmp.length),
     valueLines, otherLines, pendingLines: [], cmpCount: cmp.length,
     valueDiff: valueLines.reduce((a, l) => a + amtOf(l), 0),
     otherDiff: otherLines.reduce((a, l) => a + amtOf(l), 0),
@@ -788,7 +1009,7 @@ function analyzeFab(inv, pkl, rows, opts) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { AZ, WORDS, poSap, poSame, unitKey, colorScore, shareWords, artHit, fabProfile, readFab, parseDateCell, analyzeFab, artOf };
+  module.exports = { AZ, WORDS, colorCore, poSap, poSame, poListOf, unitKey, colorScore, shareWords, artHit, fabProfile, readFab, parseDateCell, analyzeFab, artOf };
 }
 
 /* ==== app-all.js ==== */
@@ -859,11 +1080,16 @@ function parseInvoice(lines) {
   const flat = all.replace(/\s+/g, ' ');
 
   let serial = (flat.match(/K[ýy]\s*hi[ệe]u[^:]*:\s*([A-Z0-9]+)/i) || [])[1] || '';
-  let no = (flat.match(/S[ốo]\s*\(\s*No\.?\s*\)\s*:?\s*(\d+)/i) || flat.match(/\bNo\.?\s*\)\s*:?\s*(\d+)/i) || [])[1] || '';
+  let no = (flat.match(/S[ốo]\s*\(\s*No\.?\s*\)\s*:?\s*(\d+)/i) || flat.match(/\bNo\.?\s*\)\s*:?\s*(\d+)/i)
+    || flat.match(/S[ốo]\s*:\s*(\d{4,})/i) || [])[1] || '';
 
   let d = null, m = null, y = null;
   let md = flat.match(/Ng[àa]y\s*\(?\s*date\s*\)?\s*(\d{1,2})\s*th[áa]ng\s*\(?\s*month\s*\)?\s*(\d{1,2})\s*n[ăa]m\s*\(?\s*year\s*\)?\s*(\d{4})/i);
   if (md) { d = md[1]; m = md[2]; y = md[3]; }
+  if (!md) {   // "Ngày29tháng09năm2026" (hóa đơn không có chữ "date")
+    md = flat.match(/Ng[àa]y\s*(\d{1,2})\s*th[áa]ng\s*(\d{1,2})\s*n[ăa]m\s*(\d{4})/i);
+    if (md) { d = md[1]; m = md[2]; y = md[3]; }
+  }
   if (!md) {
     md = flat.match(/K[ýy]\s*ng[àa]y\s*(\d{1,2})\/(\d{1,2})\/(\d{4})/i) || flat.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
     if (md) { d = md[1]; m = md[2]; y = md[3]; }
@@ -885,6 +1111,41 @@ function parseInvoice(lines) {
   let pendingCode = null, pendingPo = null, cur = null, buf = [];
   const startIdx = lines.findIndex((l) => /T[êe]n h[àa]ng h[óo]a|Description/i.test(l));
   const body = startIdx >= 0 ? lines.slice(startIdx) : lines;
+
+  /* ---- Dạng B (Inkava): PO nằm ở dòng TRƯỚC dòng số lượng, mã hàng ở dòng SAU
+     "PODUY0095800- Label L56xW20MM-" / "1 PCS 16.988,00 100 1.698.800" / "ALABPRWV0228"
+     Nhận ra khi cả hóa đơn không có dấu "//" mà lại có dòng bắt đầu bằng PO<mã>.   */
+  const RE_POPRE = /\bPO\s*([A-Z]{2,6}\d{4,})/i;
+  const endIdx = body.findIndex((L) => /C[ộo]ng ti[ềe]n h[àa]ng|T[ổo]ng s[ốo] l[ưu][ợo]ng|Total amount/i.test(L));
+  const bodyCut = endIdx > 0 ? body.slice(0, endIdx) : body;
+  const usePoPre = !bodyCut.some((L) => L.includes('//')) && bodyCut.some((L) => RE_POPRE.test(L));
+  if (usePoPre) {
+    const codesIn = (t, po) => (String(t).toUpperCase().match(/\b[A-Z]{3,}\d{3,}\b/g) || [])
+      .filter((x) => !po || !x.includes(String(po).toUpperCase()));
+    let cur2 = null, buf2 = [];
+    for (const L of bodyCut) {
+      const mq = L.match(reQty);
+      if (mq) {
+        const ctx = buf2.concat([L]).join(' ');
+        const po = (ctx.match(RE_POPRE) || [])[1] || '';
+        cur2 = { code: '', po: po.toUpperCase(), text: ctx, qty: num(mq[1]), price: num(mq[2]), amount: num(mq[3]) };
+        const c0 = codesIn(ctx, po);
+        if (c0.length) cur2.code = c0[c0.length - 1];
+        items.push(cur2);
+        buf2 = [];
+        continue;
+      }
+      const isPoLine = RE_POPRE.test(L);
+      if (cur2 && !cur2.code && !isPoLine) {
+        const c = codesIn(L, cur2.po);
+        if (c.length) { cur2.code = c[c.length - 1]; cur2.text += ' ' + L; continue; }
+      }
+      if (isPoLine) { cur2 = null; buf2 = [L]; }
+      else if (cur2) cur2.text += ' ' + L;
+      else buf2.push(L);
+    }
+    return { serial, no, invNo, invDate, items, total, vat, payment };
+  }
 
   let frag = null;
   for (const L of body) {
@@ -927,6 +1188,19 @@ function parseInvoice(lines) {
       if (last && !last.po) last.po = po; else pendingPo = po;
     }
   }
+  /* Dạng mô tả khác (Inkava): "PODUY0095800- Label L56xW20MM- ALABPRWV0228"
+     — không có dấu "//", PO dán liền chữ PO, mã hàng là token cuối.            */
+  for (const it of items) {
+    if (!it.po) {
+      const mm = it.text.match(/\bPO\s*[:\-]?\s*([A-Z]{2,6}\d{4,})/i);
+      if (mm) it.po = mm[1].toUpperCase();
+    }
+    if (!it.code) {
+      const cands = (it.text.toUpperCase().match(/\b[A-Z]{3,}\d{3,}\b/g) || [])
+        .filter((x) => !it.po || !x.includes(it.po.toUpperCase()));
+      if (cands.length) it.code = cands[cands.length - 1];
+    }
+  }
   return { serial, no, invNo, invDate, items, total, vat, payment };
 }
 
@@ -949,7 +1223,9 @@ function codeVariants(raw) {
 /* Tra PO: ưu tiên PO ScaX (TRIMMINGVN-xxxx), nếu không có thì thử PO ScaF (mã PO No. trong file PO) */
 function resolvePo(item, poIdx) {
   const text = (item.text || '') + ' ' + (item.po || '');
-  const toks = [...new Set(text.toUpperCase().match(/[A-Z0-9][A-Z0-9\-\/]{3,}/g) || [])];
+  const raw = [...new Set(text.toUpperCase().match(/[A-Z0-9][A-Z0-9\-\/]{3,}/g) || [])];
+  const toks = [...new Set([].concat(...raw.map((t) => [t, t.replace(/[-\/]+$/, ''), t.replace(/^PO/, '').replace(/[-\/]+$/, '')])))]
+    .filter((t) => t.length >= 4);
   for (const t of toks) if (poIdx.scax.has(t)) return { scax: t, sap: poIdx.scax.get(t), via: 'ScaX' };
   for (const t of toks) if (poIdx.sap.has(t)) return { scax: '', sap: poIdx.sap.get(t), via: 'ScaF' };
   return { scax: item.po || '', sap: '', via: '' };
@@ -1087,7 +1363,7 @@ function readPoWb(wb) {
 
 
 /* ================= Nhận diện & gom nhóm file ================= */
-const KIND_NAME = { inb: 'File inbound', inv: 'Hóa đơn', pkl: 'Packing list', po: 'PO SCAF-SCAX', fab: 'Chứng từ vải (HĐ+PKL)' };
+const KIND_NAME = { inb: 'File inbound', inv: 'Hóa đơn', pkl: 'Packing list', po: 'PO SCAF-SCAX', fab: 'Chứng từ vải (HĐ+PKL)', pklx: 'Packing list Excel (theo PO)' };
 const CACHE = new WeakMap();
 const STATE = { po: null, items: [], groups: [], busy: false };
 let RESULT = null;
@@ -1144,6 +1420,15 @@ async function classify(file) {
         return out;
       }
     }
+    /* packing list Excel theo PO: có "PO No:" ở đầu và cột "Material Code" */
+    for (const w of wb.worksheets) {
+      let top = '';
+      for (let r = 1; r <= Math.min(10, w.rowCount); r++) top += ' ' + (w.getRow(r).values || []).map((v) => String(v == null ? '' : v)).join(' | ');
+      if (/PO\s*No\s*[:.]/i.test(top) && /Material\s*Code/i.test(top)) {
+        const px = readPklx(w);
+        if (px && px.rows.length) { out = { kind: 'pklx', score: 8, buf, px, pos: px.po ? [px.po] : [] }; CACHE.set(file, out); return out; }
+      }
+    }
     const ws = wb.worksheets[0];
     let head = '';
     for (let r = 1; r <= Math.min(15, ws.rowCount); r++) {
@@ -1167,6 +1452,41 @@ async function classify(file) {
   } else out = { kind: '', score: 0 };
   CACHE.set(file, out);
   return out;
+}
+
+/* Packing list Excel theo PO (Inkava): No. | Material Code | Description | Supp. Ref. |
+   Order No | Reference | [Story] | Size | Spec. | Quantity | Quantity | Thực xuất | … */
+function readPklx(ws) {
+  const txt = (r, c) => (c ? String(ws.getCell(r, c).text || '').trim() : '');
+  let po = '';
+  for (let r = 1; r <= Math.min(10, ws.rowCount) && !po; r++) {
+    for (let c = 1; c <= 12; c++) {
+      const m = txt(r, c).match(/PO\s*No\s*[:.]?\s*([A-Z0-9]{5,})/i);
+      if (m) { po = m[1].toUpperCase(); break; }
+    }
+  }
+  let hr = 0;
+  for (let r = 1; r <= Math.min(12, ws.rowCount) && !hr; r++) {
+    for (let c = 1; c <= 20; c++) if (/Material\s*Code/i.test(txt(r, c))) { hr = r; break; }
+  }
+  if (!hr) return null;
+  const col = (re) => { for (let c = 1; c <= 20; c++) if (re.test(txt(hr, c))) return c; return 0; };
+  const C = {
+    mat: col(/Material\s*Code/i), desc: col(/Description/i), ref: col(/Reference/i),
+    size: col(/^Size/i), spec: col(/Spec/i), qty: col(/Quantity/i), order: col(/Order\s*No/i),
+  };
+  const rows = [];
+  for (let r = hr + 1; r <= ws.rowCount; r++) {
+    if (/^total/i.test(txt(r, C.desc || 1)) || /^total/i.test(txt(r, 3))) break;
+    const mat = txt(r, C.mat);
+    const q = num(ws.getCell(r, C.qty).value);
+    if (!mat || isNaN(q) || q <= 0) continue;
+    rows.push({
+      material: mat.toUpperCase(), ref: txt(r, C.ref), spec: txt(r, C.spec),
+      size: txt(r, C.size).replace(/\s+/g, '').toUpperCase(), order: txt(r, C.order), qty: q,
+    });
+  }
+  return { po, rows, total: rows.reduce((a, b) => a + b.qty, 0) };
 }
 
 /* đọc cả thư mục khi kéo–thả */
@@ -1226,6 +1546,7 @@ async function buildGroups() {
   const invs = STATE.items.filter((x) => x.kind === 'inv');
   const fabs = STATE.items.filter((x) => x.kind === 'fab');
   const pkls = STATE.items.filter((x) => x.kind === 'pkl');
+  const pxs = STATE.items.filter((x) => x.kind === 'pklx');
   const inbs = STATE.items.filter((x) => x.kind === 'inb');
   const poIdx = STATE.po ? readPoWb((await classify(STATE.po)).wb) : null;
 
@@ -1237,6 +1558,13 @@ async function buildGroups() {
     it.sapPos = [...new Set(it.inv.items.map((x) => (poIdx ? resolvePo(x, { scax: poIdx.map, sap: poIdx.sap }).sap : '')).filter(Boolean))];
   }
   for (const p of pkls) p.note = (await classify(p.file)).note;
+  for (const p of pxs) p.px = (await classify(p.file)).px;
+  /* packing list Excel: gắn theo số PO xuất hiện trên hóa đơn (một hóa đơn nhiều PO) */
+  for (const it of invs) {
+    const want = [...new Set(it.inv.items.map((x) => String(x.po || '').toUpperCase()).filter(Boolean))];
+    it.pklx = pxs.filter((p) => p.px && p.px.po && want.some((w) => poSame(w, p.px.po)));
+    it.pklx.forEach((p) => { p.used = true; });
+  }
 
   const nameHas = (f, tag) => tag && (f.name + ' ' + (f.webkitRelativePath || f._relPath || '')).includes(tag);
   // ghép toàn cục: chấm điểm mọi cặp rồi gán từ cặp điểm cao nhất xuống,
@@ -1296,7 +1624,7 @@ async function buildGroups() {
   STATE.groups = [];
   for (const it of invs) {
     STATE.groups.push({
-      inv: it, pkl: pklOf.get(it) || null, inb: inbOf.get(it) || null,
+      inv: it, pkl: pklOf.get(it) || null, inb: inbOf.get(it) || null, pklx: it.pklx || [],
       sel: prevSel.has(it.key) ? prevSel.get(it.key) : true,
     });
   }
@@ -1307,7 +1635,7 @@ async function buildGroups() {
       sel: prevSel.has(it.key) ? prevSel.get(it.key) : true,
     });
   }
-  STATE.orphanPkl = pkls.filter((p) => !p.used);
+  STATE.orphanPkl = [...pkls, ...pxs].filter((p) => !p.used);
   STATE.orphanInb = inbs.filter((p) => !p.used);
   STATE.poIdx = poIdx;
 }
@@ -1331,7 +1659,8 @@ function renderSlots() {
       <td><b>${esc(x.inv.inv.invNo || x.inv.file.name)}</b><span class="fn">${esc(x.inv.file.name)}</span></td>
       <td>${esc(x.inv.inv.invDate)}</td><td class="n">${x.inv.inv.items.length}</td>
       <td>${x.isFab ? `<span class="ok2">✓</span> <span class="fn">trong cùng file · ${esc(x.fabName || 'vải')}</span>`
-        : (x.pkl ? `<span class="ok2">✓</span> <span class="fn">${esc(x.pkl.file.name)}</span>` : '<span class="miss">chưa có</span>')}</td>
+        : ((x.pklx && x.pklx.length) ? `<span class="ok2">✓</span> <span class="fn">${x.pklx.length} file Excel theo PO: ${esc(x.pklx.map((p) => p.px.po).join(', '))}</span>`
+          : (x.pkl ? `<span class="ok2">✓</span> <span class="fn">${esc(x.pkl.file.name)}</span>` : '<span class="miss">chưa có</span>'))}</td>
       <td>${x.inb ? `<span class="ok2">✓</span> <span class="fn">${esc(x.inb.file.name)}</span>` : '<span class="miss">chưa có</span>'}</td></tr>`;
   });
   h += '</tbody></table>';
@@ -1360,7 +1689,7 @@ function renderSlots() {
 /* Tìm các dòng inbound khớp mã hàng: thử lần lượt các biến thể của mã (chi tiết → chung),
    rồi lọc thêm bằng từ khóa phụ có trong mã (Main / Care / Angel Pink…) */
 function matchByCode(R, pool) {
-  const textOf = (x) => norm(x.desc) + '|' + norm(x.spec);
+  const textOf = (x) => norm(x.desc) + '|' + norm(x.spec) + '|' + norm(x.material);
   let hit = [], usedVar = '';
   for (const v of R.vars) {
     const h = pool.filter((x) => textOf(x).includes(v));
@@ -1381,7 +1710,7 @@ function matchByCode(R, pool) {
 /* Điểm "quyền sở hữu" một dòng inbound khi nhiều dòng hóa đơn cùng giành:
    biến thể mã càng chi tiết càng cao · có từ khóa của mình +2 · mang từ khóa của item khác −6 */
 function claimScore(row, R) {
-  const t = norm(row.desc) + '|' + norm(row.spec);
+  const t = norm(row.desc) + '|' + norm(row.spec) + '|' + norm(row.material);
   const vi = R.vars.findIndex((v) => t.includes(v));
   if (vi < 0) return -Infinity;
   let s = 10 - Math.min(vi, 8);
@@ -1391,7 +1720,7 @@ function claimScore(row, R) {
 }
 
 /* ================= Phân tích 1 hóa đơn ================= */
-function analyze(inv, pkl, rows, po) {
+function analyze(inv, pkl, rows, po, pklx) {
   const lines = [];
   const resolved = inv.items.map((it) => ({ it, rp: po ? resolvePo(it, { scax: po.map, sap: po.sap }) : { scax: it.po || '', sap: '', via: '' } }));
   const priceKey = {};   // để chỉ ghép theo đơn giá khi (PO + đơn giá) là duy nhất trong hóa đơn
@@ -1399,8 +1728,19 @@ function analyze(inv, pkl, rows, po) {
 
   /* ---- Vòng 1: mỗi dòng hóa đơn tự tìm các dòng inbound khớp mã hàng ---- */
   const rowsOf = (sapPo) => (rows && sapPo ? rows.filter((x) => x.poV.toUpperCase() === sapPo.toUpperCase()) : []);
-  const textOf = (x) => norm(x.desc) + '|' + norm(x.spec);
+  const textOf = (x) => norm(x.desc) + '|' + norm(x.spec) + '|' + norm(x.material);
   const wordsOf = (code) => [...new Set((String(code).toUpperCase().match(/[A-Z]{3,}/g) || []))];
+
+  /* không tra được qua file PO nhưng chính file inbound có mã PO đó → dùng luôn */
+  if (rows) {
+    const inbPos = [...new Set(rows.map((x) => x.poV.trim().toUpperCase()))];
+    for (const R of resolved) {
+      if (R.rp.sap) continue;
+      const cands = [...new Set(((R.it.text || '') + ' ' + (R.it.po || '')).toUpperCase().match(/[A-Z]{2,6}\d{4,}/g) || [])];
+      const hitPo = inbPos.find((p) => cands.some((c) => c === p || c.endsWith(p) || p.endsWith(c)));
+      if (hitPo) { R.rp = { scax: '', sap: hitPo, via: 'inbound' }; }
+    }
+  }
 
   for (const R of resolved) {
     const { it, rp } = R;
@@ -1485,12 +1825,60 @@ function analyze(inv, pkl, rows, po) {
       const h = inPo.filter((x) => x.price === it.price);
       if (h.length) { hit = h; matchBy = 'đơn giá'; }
     }
+    /* ---- packing list Excel theo PO (Inkava): có sẵn Material Code + Size + Spec
+       nên phân bổ được số lượng vào từng dòng inbound, không cần điền tay ---- */
+    let xRows = null, xNote = '', xOrder = '';
+    if (pklx && pklx.length && sapPo) {
+      const files = pklx.filter((x) => x.po && (x.po.toUpperCase() === sapPo.toUpperCase()
+        || x.po.toUpperCase().endsWith(sapPo.toUpperCase()) || sapPo.toUpperCase().endsWith(x.po.toUpperCase())));
+      let rws = [];
+      files.forEach((x) => x.rows.forEach((rw) => { if (vars.some((v) => norm(rw.material).includes(v))) rws.push(rw); }));
+      if (rws.length) {
+        const tot = rws.reduce((a, b) => a + b.qty, 0);
+        if (it.qty && Math.abs(tot - it.qty) > 0.001) {
+          const byOrd = {};
+          rws.forEach((rw) => { byOrd[rw.order || '?'] = (byOrd[rw.order || '?'] || 0) + rw.qty; });
+          const okOrd = Object.keys(byOrd).filter((k) => Math.abs(byOrd[k] - it.qty) < 0.001);
+          if (okOrd.length === 1) {
+            rws = rws.filter((rw) => (rw.order || '?') === okOrd[0]);
+            xOrder = okOrd[0];
+            xNote = `Packing list gộp ${Object.keys(byOrd).length} Order No (tổng ${fmt(tot)}) — đã lấy đúng nhóm ${okOrd[0]} = ${fmt(it.qty)}. `;
+          } else {
+            xNote = `⚠ Packing list tổng ${fmt(tot)} ≠ hóa đơn ${fmt(it.qty)}, không nhóm Order No nào khớp (${Object.entries(byOrd).map(([k, v]) => k + ': ' + fmt(v)).join('; ')}). `;
+          }
+        }
+        xRows = rws;
+      }
+    }
+    let xMap = null;
+    if (xRows && xRows.length) {
+      xMap = {};
+      xRows.forEach((rw) => {
+        const k1 = norm(rw.material) + '|' + rw.size + '|' + norm(rw.spec || rw.ref);
+        xMap[k1] = (xMap[k1] || 0) + rw.qty;
+        const k2 = '~' + norm(rw.material) + '|' + rw.size;
+        xMap[k2] = (xMap[k2] || 0) + rw.qty;
+      });
+    }
+    let xCov = 0, xMiss = 0;
+    if (xMap) {
+      hit.forEach((h) => {
+        const sz = String(h.size || '').replace(/\s+/g, '').toUpperCase();
+        const k1 = norm(h.material) + '|' + sz + '|' + norm(h.spec);
+        const v = xMap[k1] != null ? xMap[k1] : xMap['~' + norm(h.material) + '|' + sz];
+        if (v != null) { h.setQty = v; xCov += v; } else h.setQty = null;
+      });
+      if (xCov <= 0) { xMap = null; hit.forEach((h) => { h.setQty = null; }); }
+      else xMiss = hit.filter((h) => h.setQty == null).length;
+    }
+
     const sumInvQty = hit.reduce((a, b) => a + (isNaN(b.invQty) ? 0 : b.invQty), 0);
     const sumQty = hit.reduce((a, b) => a + (isNaN(b.qty) ? 0 : b.qty), 0);
-    const base = sumInvQty > 0 ? sumInvQty : sumQty;
-    const useInv = sumInvQty > 0;
+    const base = xMap ? xCov : (sumInvQty > 0 ? sumInvQty : sumQty);
+    const useInv = xMap ? true : sumInvQty > 0;
     const fallbackQty = !useInv && $('#useQty').checked;
     hit.forEach((h) => {
+      if (xMap) { h.eff = h.setQty == null ? 0 : h.setQty; if (h.eff > 0) h.matched = it; return; }
       h.eff = useInv ? (isNaN(h.invQty) ? 0 : h.invQty) : (isNaN(h.qty) ? 0 : h.qty);
       if (h.eff > 0 && (useInv || fallbackQty)) h.matched = it;
     });
@@ -1505,9 +1893,18 @@ function analyze(inv, pkl, rows, po) {
     // chỉ so thành tiền khi số lượng đã khớp — lệch SL thì đương nhiên lệch tiền
     const amtBad = hit.length > 0 && useInv && base === it.qty && !!it.amount && Math.abs(inbAmount - it.amount) > 0.5;
 
-    // packing list
     let pklSize = {}, pklTotal = 0; const pklCodesUsed = new Set();
-    if (pkl) {
+    const pklFromX = !!(xRows && xRows.length);
+    if (pklFromX) {
+      xRows.forEach((rw) => {
+        const k = rw.size || '?';
+        pklSize[k] = (pklSize[k] || 0) + rw.qty;
+        pklTotal += rw.qty;
+        if (rw.spec || rw.ref) pklCodesUsed.add(rw.spec || rw.ref);
+      });
+    }
+    // packing list PDF
+    if (pkl && !pklFromX) {
       const cand = pkl.filter((g) => g.label === codeN || vars.includes(g.label));
       let pg = [];
       if (rp.via === 'ScaX' && rp.scax) pg = cand.filter((g) => g.po && norm(g.po).endsWith(norm(rp.scax).slice(-4)));
@@ -1566,9 +1963,10 @@ function analyze(inv, pkl, rows, po) {
         'Hãy điền Invoice Quantity rồi chạy lại (hoặc tick "Dùng cột Quantity khi Invoice Quantity còn trống").';
     } else if (base !== it.qty) {
       status = 'LỆCH SL';
-      note = `Inbound ${fmt(base)} vs hóa đơn ${fmt(it.qty)} (lệch ${fmt(base - it.qty)})` +
+      note = xNote + (xMiss ? `${xMiss} dòng inbound không có trong packing list. ` : '')
+        + `Inbound ${fmt(base)} vs hóa đơn ${fmt(it.qty)} (lệch ${fmt(base - it.qty)})` +
         (diffs.length ? ' — size lệch: ' + diffs.map((d) => `${d.size}: inbound ${d.inb} / PKL ${d.pkl}`).join('; ') : '');
-    } else if (pkl && pklTotal && pklTotal !== it.qty) {
+    } else if ((pkl || pklFromX) && pklTotal && pklTotal !== it.qty) {
       status = 'LỆCH PKL';
       note = `Inbound khớp hóa đơn (${fmt(it.qty)}) nhưng packing list ${fmt(pklTotal)} pcs` +
         (diffs.length ? ' — size lệch: ' + diffs.map((d) => `${d.size}: inbound ${d.inb} / PKL ${d.pkl}`).join('; ') : '');
@@ -1580,7 +1978,8 @@ function analyze(inv, pkl, rows, po) {
         + (R.ambiguous ? `⚠ Mã hàng chưa đủ phân biệt: inbound còn ${R.alt.length} dòng cùng họ mã `
             + `(${[...new Set(R.alt.map((x) => x.desc.trim().slice(0, 40)))].slice(0, 2).join(' · ')}`
             + `, ${fmt(R.alt.reduce((a, x) => a + (x.qty || 0), 0))} pcs) — kiểm tra lại xem có chọn đúng dòng không. ` : '')
-        + (pkl ? '' : 'Không có packing list — chỉ đối chiếu với hóa đơn');
+        + (pklFromX ? xNote + `Packing list Excel theo PO — đã điền Invoice Quantity cho ${hit.filter((h) => h.setQty != null).length} dòng theo Material Code + Size` + (xOrder ? ` (Order ${xOrder})` : '') + '. ' : '')
+        + (pkl || pklFromX ? '' : 'Không có packing list — chỉ đối chiếu với hóa đơn');
     }
     if (matchBy !== 'mã hàng' && status !== 'KHỚP') note = `Ghép theo ${matchBy}. ` + note;
     if (R.ambiguous && status !== 'KHỚP') {
@@ -1591,8 +1990,8 @@ function analyze(inv, pkl, rows, po) {
 
     lines.push({
       it, sapPo, hit, base, sumQty, sumInvQty, pklCodes: [...pklCodesUsed], pklSize, pklTotal,
-      bySize, diffs, poRows, status, note, inbPrices, inbAmount, priceBad, amtBad,
-      hasInb: !!rows, hasPkl: !!pkl, useInv, matchBy, ambiguous: !!R.ambiguous, usedVar: R.usedVar,
+      bySize, diffs, poRows, status, note, inbPrices, inbAmount, priceBad, amtBad, xOrder, xMiss,
+      hasInb: !!rows, hasPkl: !!pkl || pklFromX, pklFromX, useInv, matchBy, ambiguous: !!R.ambiguous, usedVar: R.usedVar,
       pickedByQty: !!R.pickedByQty, altRows: (R.alt || []).length,
     });
   }
@@ -1632,6 +2031,7 @@ function readInbRows(ws, H) {
       r, poV,
       desc: row.getCell(H.desc).text,
       spec: H.spec ? row.getCell(H.spec).text : '',
+      material: H.material ? row.getCell(H.material).text : '',
       supRef: H.supRef ? row.getCell(H.supRef).text : '',
       color: H.color ? row.getCell(H.color).text : '',
       lapdip: H.lapdip ? row.getCell(H.lapdip).text : '',
@@ -1699,9 +2099,10 @@ async function run() {
       const inv = g.inv.inv;
       log(`── Hóa đơn ${inv.invNo || g.inv.file.name} (${inv.items.length} dòng)${g.isFab ? ` — vải · ${g.fabName}` : (g.pkl ? '' : ' — không có packing list')}${g.inb ? '' : ' — CHƯA CÓ INBOUND'}`);
       const pklGroups = g.isFab ? g.inv.fab.pkl : (g.pkl ? parsePacking((await classify(g.pkl.file)).lines) : null);
+      const pxList = (g.pklx || []).map((p) => p.px).filter(Boolean);
       const doAnalyze = (rr) => (g.isFab
         ? analyzeFab(inv, pklGroups, rr, { poIdx: po ? { scax: po.map, sap: po.sap } : null, hasPoFile: !!po })
-        : analyze(inv, pklGroups, rr, po));
+        : analyze(inv, pklGroups, rr, po, pxList));
       let rows = null, wbSap = null, wsSap = null, H = null, cInb = null;
       if (g.inb) {
         cInb = await classify(g.inb.file);
@@ -1722,7 +2123,7 @@ async function run() {
 
       if (rows) {
         const kept = fillSapWorkbook(wsSap, H, rows, inv, onlyMatched);
-        const stamp = `${String(inv.invNo || 'HD').replace(/[#\\\/:*?"<>|]/g, '-')}_${inv.invDate}`;
+        const stamp = `${String(inv.invNo || 'CHUA-CO-SO-HD').replace(/[#\\\/:*?"<>|&]/g, '-')}_${inv.invDate}`;
         await addDownload(wbSap, `INB_${stamp}.xlsx`, `Import SAP – ${inv.invNo} (${kept} dòng)`, 'main');
         if (perInvoiceReport) {
           const wbR = new ExcelJS.Workbook();
@@ -1894,11 +2295,17 @@ function writeInvoiceReport(rs, R, inv, lines, VAL, g, withWidths) {
     });
   };
   if (withWidths) [22, 18, 10, 14, 12, 12, 12, 10, 11, 14, 15, 15, 12, 15, 60].forEach((w, i) => { rs.getColumn(i + 1).width = w; });
-  put(R, [`HÓA ĐƠN ${inv.invNo} — ngày ${inv.invDate}`], true, 'FFEEEEEE');
+  put(R, [`HÓA ĐƠN ${inv.invNo || g.inv.file.name.replace(/\.[^.]+$/, '')} — ngày ${inv.invDate}`], true, 'FFEEEEEE');
   rs.getCell(R, 1).font = { bold: true, size: 12 }; R++;
   put(R++, ['File hóa đơn', g.inv.file.name]);
-  put(R++, ['File packing list', g.pkl ? g.pkl.file.name : (g.isFab ? '(nằm trong cùng file chứng từ)' : '(không có)')]);
+  put(R++, ['File packing list', g.pkl ? g.pkl.file.name
+    : ((g.pklx && g.pklx.length) ? g.pklx.map((p) => p.file.name).join(' · ')
+      : (g.isFab ? '(nằm trong cùng file chứng từ)' : '(không có)'))]);
   put(R++, ['File inbound', g.inb ? g.inb.file.name : '(chưa có)']);
+  if (VAL.noInvoiceNo) {
+    put(R, ['⚠ CHỨNG TỪ CHƯA CÓ SỐ HÓA ĐƠN — cột Invoice Number để trống. Điền ô "HD:" trong file rồi thả lại.'], true, 'FFFFF2CC');
+    R++;
+  }
   if (VAL.valueBad) {
     put(R, ['⚠ HÓA ĐƠN NÀY SAI GIÁ TRỊ – CẦN KIỂM TRA LẠI (đơn giá/thành tiền không khớp PO)'], true, 'FFFFC7CE');
     rs.getCell(R, 1).font = { bold: true, size: 12, color: { argb: 'FFC00000' } }; R++;
@@ -1967,6 +2374,8 @@ function writeInvoiceReport(rs, R, inv, lines, VAL, g, withWidths) {
 }
 
 /* ================= Báo cáo tổng hợp nhiều hóa đơn ================= */
+const invLabel = (a) => a.inv.invNo || (a.g && a.g.inv ? a.g.inv.file.name.replace(/\.[^.]+$/, '') : '(chưa có số HĐ)');
+
 function buildSummaryWorkbook(wb, all) {
   const head = (ws, arr, widths) => {
     widths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
@@ -1986,7 +2395,7 @@ function buildSummaryWorkbook(wb, all) {
       : a.VAL.valueBad ? '⚠ HÓA ĐƠN SAI GIÁ TRỊ – CẦN KIỂM TRA LẠI'
         : bad.length ? `${bad.length} dòng lệch — xem sheet CHI TIET`
         : (a.VAL.pendingLines.length ? `${a.VAL.pendingLines.length} dòng chưa điền Invoice Quantity` : 'Khớp toàn bộ');
-    s.addRow([a.inv.invNo, a.inv.invDate, a.g.pkl ? 'có' : (a.g.isFab ? 'cùng file' : 'không'), a.g.inb ? 'có' : 'chưa có',
+    s.addRow([invLabel(a), a.inv.invDate, a.g.pkl ? 'có' : ((a.g.pklx && a.g.pklx.length) ? `${a.g.pklx.length} file Excel` : (a.g.isFab ? 'cùng file' : 'không')), a.g.inb ? 'có' : 'chưa có',
       a.lines.length, bad.length, a.VAL.invTotal,
       a.VAL.cmpCount ? a.VAL.invCmpTotal : '', a.VAL.cmpCount ? a.VAL.inbTotal : '',
       a.VAL.cmpCount ? a.VAL.totalDiff : '', concl, a.g.inv.file.name]);
@@ -1999,7 +2408,7 @@ function buildSummaryWorkbook(wb, all) {
     [20, 12, 11, 18, 9, 13, 11, 11, 11, 10, 11, 14, 14, 15, 12, 15, 70]);
   for (const a of all) {
     for (const l of a.lines) {
-      d.addRow([a.inv.invNo, a.inv.invDate, l.it.code, l.it.po, l.it.poVia || '', l.sapPo || '', l.it.qty,
+      d.addRow([invLabel(a), a.inv.invDate, l.it.code, l.it.po, l.it.poVia || '', l.sapPo || '', l.it.qty,
         l.hasInb ? l.base : '', l.pklTotal || '', l.hasInb ? l.base - l.it.qty : '',
         isNaN(l.it.price) ? '' : l.it.price, l.inbPrices.join(' / '),
         isNaN(l.it.amount) ? '' : l.it.amount, l.hasInb ? l.inbAmount : '',
@@ -2015,12 +2424,27 @@ function buildSummaryWorkbook(wb, all) {
     for (const l of a.lines) {
       if (!l.hasInb || !l.hasPkl || !l.useInv) continue;
       for (const df of l.diffs) {
-        z.addRow([a.inv.invNo, l.it.code, l.sapPo, l.pklCodes.join(', '), df.size, df.inb, df.pkl, df.diff]);
+        z.addRow([invLabel(a), l.it.code, l.sapPo, l.pklCodes.join(', '), df.size, df.inb, df.pkl, df.diff]);
         paint(z, 'FFFFF2CC');
       }
     }
   }
   if (z.rowCount === 1) z.addRow(['Không có size/lô nào lệch giữa inbound và packing list.']);
+
+  if (all.some((a) => a.lines.some((l) => (l.alloc || []).length > 1))) {
+    const ap = wb.addWorksheet('PHAN BO PO');
+    head(ap, ['Hóa đơn', 'Item', 'Mã Material', 'PO được chia', 'SL chia', 'SL của cả dòng', 'Kết quả'],
+      [20, 34, 18, 16, 14, 16, 22]);
+    for (const a of all) {
+      for (const l of a.lines) {
+        if ((l.alloc || []).length < 2) continue;
+        for (const x of l.alloc) {
+          ap.addRow([invLabel(a), l.it.code, x.material || '', x.po, x.qty, l.base, l.status]);
+          paint(ap, 'FFFFF2CC');
+        }
+      }
+    }
+  }
 
   if (all.some((a) => a.lines.some((l) => (l.lots || []).length))) {
     const lo = wb.addWorksheet('CHI TIET LO');
@@ -2029,7 +2453,7 @@ function buildSummaryWorkbook(wb, all) {
     for (const a of all) {
       for (const l of a.lines) {
         for (const L of (l.lots || [])) {
-          lo.addRow([a.inv.invNo, l.sapPo, l.it.code, L.lot, L.rolls, L.qty, L.unit || '', l.base, l.status]);
+          lo.addRow([invLabel(a), l.sapPo, l.it.code, L.lot, L.rolls, L.qty, L.unit || '', l.base, l.status]);
           paint(lo, isOkK(l.status) ? null : 'FFFFF2CC');
         }
       }
@@ -2045,7 +2469,7 @@ function buildSummaryWorkbook(wb, all) {
       const k = l.sapPo.toUpperCase();
       if (!m.has(k)) m.set(k, { sap: l.sapPo, scax: l.it.poScax || '', invs: new Set(), qty: 0, amt: 0, inb: !!a.g.inb });
       const e = m.get(k);
-      e.invs.add(a.inv.invNo); e.qty += l.it.qty || 0; e.amt += isNaN(l.it.amount) ? 0 : l.it.amount;
+      e.invs.add(invLabel(a)); e.qty += l.it.qty || 0; e.amt += isNaN(l.it.amount) ? 0 : l.it.amount;
       if (!e.scax && l.it.poScax) e.scax = l.it.poScax;
       if (a.g.inb) e.inb = true;
     }
@@ -2054,7 +2478,7 @@ function buildSummaryWorkbook(wb, all) {
     .forEach((e) => p.addRow([e.sap, e.scax, [...e.invs].join(', '), e.qty, e.amt, e.inb ? 'có' : 'chưa']));
 
   for (const a of all) {
-    const name = ('HD ' + (a.inv.no || a.inv.invNo)).slice(0, 28).replace(/[\\\/\?\*\[\]:]/g, '');
+    const name = ('HD ' + (a.inv.no || a.inv.invNo || invLabel(a))).slice(0, 28).replace(/[\\\/\?\*\[\]:]/g, '');
     const ws = wb.addWorksheet(name);
     writeInvoiceReport(ws, 1, a.inv, a.lines, a.VAL, a.g, true);
   }
@@ -2078,7 +2502,8 @@ function renderAll(all) {
       <summary><b>${esc(a.inv.invNo)}</b> · ${esc(a.inv.invDate)} · ${a.lines.length} dòng ·
       ${a.VAL.hasInb ? '' : '<span class="tag bad">CHƯA CÓ INBOUND</span> '}
       ${a.g.isFab ? `<span class="tag via">vải · ${esc(a.g.fabName || '')}</span> ` : ''}
-      ${(a.g.pkl || a.g.isFab) ? '' : '<span class="tag warnt">không có packing list</span> '}
+      ${(a.g.pkl || a.g.isFab || (a.g.pklx && a.g.pklx.length)) ? '' : '<span class="tag warnt">không có packing list</span> '}
+      ${a.VAL.noInvoiceNo ? '<span class="tag warnt">chưa có số HĐ</span> ' : ''}
       ${a.VAL.valueBad ? '<span class="tag bad">SAI GIÁ TRỊ</span> ' : (bad.length ? `<span class="tag warnt">${bad.length} dòng lệch</span> ` : '<span class="tag good">khớp</span> ')}
       <span class="mono">${fmt(a.VAL.invTotal)}</span></summary>`;
     if (a.VAL.valueBad) {
