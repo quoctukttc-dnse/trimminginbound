@@ -82,7 +82,7 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
 </head>
 <body>
 <div class="wrap">
-  <h1>Inbound SAP – Đối chiếu hóa đơn <span class="ver">v10 · 30.09.2026 · 6 chủ hàng</span></h1>
+  <h1>Inbound SAP – Đối chiếu hóa đơn <span class="ver">v10.1 · 30.09.2026 · 6 chủ hàng</span></h1>
   <p class="sub">Kéo cả thư mục (nhiều hóa đơn) vào đây. Công cụ tự nhận diện <b>chủ hàng</b> và loại file — trimming (hóa đơn PDF của ITL, Inkava) hoặc vải (chứng từ Excel của Techwork, New Style–BLAO, Quanzhou Hengyu, J&amp;H Yubo) — ghép thành từng bộ rồi đối chiếu. Chưa có inbound thì xuất <b>danh sách PO</b> để tạo trên SAP; chưa có packing list thì chỉ đối chiếu với hóa đơn. Mọi xử lý chạy trong trình duyệt.</p>
 
   <div class="card">
@@ -156,7 +156,11 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
         <li><b>Cùng mã Material nằm ở nhiều PO</b> → chia theo <b>PO cũ trước (FIFO)</b>: lấp đầy phần còn nhận được của
         PO số nhỏ nhất, thừa thì tràn sang PO kế tiếp; trạng thái <code>KHỚP (chia nhiều PO)</code> và có sheet
         <code>PHAN BO PO</code> để kiểm lại.</li>
-        <li>Chưa có số hóa đơn (ô <code>HD:</code> trống) → vẫn xuất, để trống cột <em>Invoice Number</em> và cảnh báo vàng.</li>
+        <li>Ô <code>HD:</code> đã có số → điền luôn. Nếu chỉ có số (vd <code>1728</code>) mà chưa có ký hiệu thì cảnh báo vàng
+        "thiếu ký hiệu HĐ"; thả kèm <b>file PDF hóa đơn GTGT</b> là công cụ ghép lại và điền đủ
+        <code>1C26TYY#00001728</code> + ngày, đồng thời <b>đối chiếu tổng tiền hàng</b> của PKL với hóa đơn
+        (lệch thì cảnh báo đỏ). Ô <code>HD:</code> trống và không có PDF → vẫn xuất, để trống cột <em>Invoice Number</em>.</li>
+        <li>Thả nhiều bản <code>ZMME0032_&lt;dấu thời gian&gt;.xlsx</code> → chọn bản có ngày gần ngày hóa đơn nhất.</li>
         <li>Cột có chữ <em>comment</em> (vd "Mỹ Ngọc comment 29Sep") chỉ dùng để <b>nhắc</b> khi khác cột Cân nặng, không lấy số.</li>
       </ul>
       <div class="hint" style="margin-top:12px"><b>Inkava</b> — hóa đơn PDF + packing list Excel theo PO (v10)</div>
@@ -255,6 +259,15 @@ function colorCore(raw) {
 /* So màu theo thang từ chắc chắn đến mờ nhạt (10 → 0).
    invColor = ô màu trên chứng từ · inbColor = cột Color của inbound
    wide     = thêm mô tả/mã màu của chứng từ, dùng cho phép thử "có chứa"        */
+/* phần đứng sau chữ "matching" — mã style mà màu này phải khớp với
+   ("…matching color w F25-LCST-004" → F25LCST004). Dùng để phân xử khi lõi màu trùng nhau. */
+function colorTail(raw) {
+  const t = String(raw == null ? '' : raw).toUpperCase().replace(/[\r\n]+/g, ' ');
+  const i = t.search(/\bMATCHING\b|\bMATCH\b/);
+  if (i < 0) return '';
+  return AZ(t.slice(i).replace(/MATCHING|MATCH|COLOU?R|\bW\b/g, ' '));
+}
+
 function colorScore(invColor, inbColor, wide) {
   const a = AZ(invColor), b = AZ(inbColor);
   if (!a || !b) return 0;
@@ -265,8 +278,12 @@ function colorScore(invColor, inbColor, wide) {
   if (w.includes(b)) return 7;                              // tên màu inbound có trong mô tả
   const ca = AZ(colorCore(invColor)), cb = AZ(colorCore(inbColor));
   if (ca && cb) {
-    if (ca === cb) return 6;                                // trùng lõi màu
-    if (ca.startsWith(cb) || cb.startsWith(ca) || ca.includes(cb) || cb.includes(ca)) return 5;
+    /* lõi màu trùng nhau → phân xử bằng phần "matching w <style>":
+       khớp +1 · khác nhau −2 · một bên có một bên không −1                       */
+    const ta = colorTail(invColor), tb = colorTail(inbColor);
+    const tie = (ta && tb) ? ((ta === tb || ta.indexOf(tb) >= 0 || tb.indexOf(ta) >= 0) ? 1 : -2) : ((ta || tb) ? -1 : 0);
+    if (ca === cb) return 6 + tie;                          // trùng lõi màu
+    if (ca.startsWith(cb) || cb.startsWith(ca) || ca.includes(cb) || cb.includes(ca)) return 5 + tie;
   }
   const toks = WORDS(colorCore(inbColor));
   if (!toks.length) return 0;
@@ -708,7 +725,7 @@ function readYubo(wb) {
         desc: [T(ws, r, C.name), code, color].filter(Boolean).join(' · '),
         qtyByUnit: { KG: 0 }, unit: 'KG', qty: 0,
         price: N(ws, r, C.price), surcharge: 0, amount: 0,
-        code, lots: [], warn: [],
+        code, lots: [], warn: [], pklKey: key,
       };
       map.set(key, it);
     }
@@ -742,6 +759,7 @@ function readYubo(wb) {
     inv: {
       no, invNo: no, invDate, items, currency: 'VND', unitDefault: 'KG',
       surchargeHeader: 0, total, totalVat, amountInclSur: false, noInvoiceNo: !no,
+      noSerial: !!no && /^\d{1,8}$/.test(String(no).trim()),
     },
     pkl: { groups, lots, unit: 'KG', level: 'lot' },
   };
@@ -886,9 +904,17 @@ function analyzeFab(inv, pkl, rows, opts) {
     const overBad = overflow > EPS;
 
     /* ---- 5. packing list: lô / cây ---- */
-    const gsOf = (arr) => (arr || []).filter((g) => (!g.po || poWanted.some((p) => poSame(g.po, p)))
-      && (!g.article || !it.article || artHit(g.article, it.article) || artHit(it.article, g.article))
-      && colorScore(it.colorText, g.color, invText) >= 3);
+    const gsOf = (arr) => {
+      /* chứng từ nào tự sinh nhóm packing list từ chính dòng hàng (Yubo) thì ghép
+         bằng khóa chính xác — dò mờ theo màu sẽ gộp lẫn các màu "matching" với nhau */
+      if (it.pklKey) {
+        const ex = (arr || []).filter((g) => g.key && (g.key === it.pklKey || g.key.indexOf(it.pklKey + '|') === 0));
+        if (ex.length) return ex;
+      }
+      return (arr || []).filter((g) => (!g.po || poWanted.some((p) => poSame(g.po, p)))
+        && (!g.article || !it.article || artHit(g.article, it.article) || artHit(it.article, g.article))
+        && colorScore(it.colorText, g.color, invText) >= 3);
+    };
     let pklTotal = 0, lots = [], pklSize = {};
     if (pkl) {
       const gs = gsOf(pkl.groups);
@@ -1001,6 +1027,9 @@ function analyzeFab(inv, pkl, rows, opts) {
     valueBad: valueLines.length > 0,
     totalBad: cmp.length > 0 && Math.abs(totalDiff) > aTol * Math.max(1, cmp.length),
     valueLines, otherLines, pendingLines: [], cmpCount: cmp.length,
+    pdfTotal: inv.pdfTotal, pdfDiff: (inv.pdfTotal == null || isNaN(inv.pdfTotal)) ? NaN : rd(itemsTotal - inv.pdfTotal),
+    pdfBad: !(inv.pdfTotal == null || isNaN(inv.pdfTotal)) && Math.abs(itemsTotal - inv.pdfTotal) > aTol * Math.max(1, lines.length),
+    noSerial: !!inv.noSerial,
     valueDiff: valueLines.reduce((a, l) => a + amtOf(l), 0),
     otherDiff: otherLines.reduce((a, l) => a + amtOf(l), 0),
     hasInb: !!rows, isFab: true, surchargeHeader: inv.surchargeHeader || 0, currency: cur,
@@ -1606,15 +1635,55 @@ async function buildGroups() {
     it.tag = it.inv.no || '';
     it.sapPos = [...new Set(it.inv.items.map((x) => x.po).filter(Boolean))];
   }
+  /* Chủ hàng vải có thể gửi kèm HÓA ĐƠN GTGT dạng PDF (Yubo): lấy ký hiệu + số + ngày
+     và tổng tiền chính thức từ đó, còn chi tiết dòng/lô vẫn đọc từ file PKL.            */
+  for (const it of fabs) {
+    it.pdfInv = null;
+    if (!it.sapPos.length) continue;
+    let best = null, bs = 0;
+    for (const v of invs) {
+      if (v.fabOwner) continue;
+      const cv = CACHE.get(v.file);
+      if (!cv || !cv.lines || !v.inv || !v.inv.invNo) continue;
+      const txt = cv.lines.join(' ').toUpperCase().replace(/\s+/g, '');
+      const n = it.sapPos.filter((q) => txt.includes(String(q).toUpperCase().replace(/\s+/g, ''))).length;
+      const sc = n + (it.dir && v.dir && it.dir === v.dir ? 0.5 : 0)
+        + (it.inv.no && (v.file.name + ' ').includes(String(it.inv.no)) ? 0.5 : 0);
+      if (n > 0 && sc > bs) { bs = sc; best = v; }
+    }
+    if (best) {
+      best.fabOwner = it; it.pdfInv = best;
+      const pv = best.inv;
+      if (pv.invNo) { it.inv.invNo = pv.invNo; it.inv.noInvoiceNo = false; it.inv.noSerial = false; }
+      if (pv.invDate) it.inv.invDate = pv.invDate;
+      it.inv.pdfTotal = pv.total; it.inv.pdfVat = pv.vat; it.inv.pdfPayment = pv.payment;
+      it.inv.pdfFile = best.file.name;
+    }
+  }
+
+  /* tên file SAP xuất ra có dấu thời gian: ZMME0032_20260926042733 → 26.09.2026.
+     Thả nhiều bản xuất thì chọn bản gần ngày hóa đơn nhất.                      */
+  const fileDay = (f) => {
+    const m = String(f.name).match(/(20\d{2})(\d{2})(\d{2})/);
+    return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN;
+  };
+  const invDay = (d) => {
+    const m = String(d || '').match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    return m ? Date.UTC(+m[3], +m[2] - 1, +m[1]) : NaN;
+  };
   const inbFab = new Map();
   for (const it of fabs) {
     let best = null, bs = 0;
+    const di = invDay(it.inv.invDate);
     for (const b of inbs) {
       const c = CACHE.get(b.file);
       if (!c || !c.pos || !c.pos.length) continue;
       const hit = it.sapPos.filter((q) => c.pos.some((x) => poSame(x, q))).length;
+      const db = fileDay(b.file);
+      const gap = (!isNaN(di) && !isNaN(db)) ? Math.abs(di - db) / 86400000 : NaN;
+      const near = isNaN(gap) ? 0 : (gap <= 2 ? 2.5 : (gap <= 7 ? 1 : 0));
       const s = (hit / Math.max(1, it.sapPos.length)) * 6
-        + (it.dir && b.dir && it.dir === b.dir ? 2 : 0) + (nameHas(b.file, it.tag) ? 3 : 0);
+        + (it.dir && b.dir && it.dir === b.dir ? 2 : 0) + (nameHas(b.file, it.tag) ? 3 : 0) + near;
       if (s > bs) { bs = s; best = b; }
     }
     if (best && bs > 0) { inbFab.set(it, best); best.used = true; }
@@ -1623,6 +1692,7 @@ async function buildGroups() {
   const prevSel = new Map((STATE.groups || []).map((g) => [g.inv.key, g.sel !== false]));
   STATE.groups = [];
   for (const it of invs) {
+    if (it.fabOwner) continue;            // đã dùng làm hóa đơn cho chứng từ vải
     STATE.groups.push({
       inv: it, pkl: pklOf.get(it) || null, inb: inbOf.get(it) || null, pklx: it.pklx || [],
       sel: prevSel.has(it.key) ? prevSel.get(it.key) : true,
@@ -1630,7 +1700,7 @@ async function buildGroups() {
   }
   for (const it of fabs) {
     STATE.groups.push({
-      inv: it, pkl: null, inb: inbFab.get(it) || null, isFab: true,
+      inv: it, pkl: null, inb: inbFab.get(it) || null, isFab: true, pdfInv: it.pdfInv || null,
       fabName: it.fab.supplier || it.fab.profile,
       sel: prevSel.has(it.key) ? prevSel.get(it.key) : true,
     });
@@ -1658,7 +1728,7 @@ function renderSlots() {
     h += `<tr class="${x.sel ? '' : 'off'}"><td class="c"><input type="checkbox" class="gsel" data-i="${i}"${x.sel ? ' checked' : ''}></td>
       <td><b>${esc(x.inv.inv.invNo || x.inv.file.name)}</b><span class="fn">${esc(x.inv.file.name)}</span></td>
       <td>${esc(x.inv.inv.invDate)}</td><td class="n">${x.inv.inv.items.length}</td>
-      <td>${x.isFab ? `<span class="ok2">✓</span> <span class="fn">trong cùng file · ${esc(x.fabName || 'vải')}</span>`
+      <td>${x.isFab ? `<span class="ok2">✓</span> <span class="fn">trong cùng file · ${esc(x.fabName || 'vải')}${x.pdfInv ? ' · kèm HĐ GTGT ' + esc(x.pdfInv.file.name) : ''}</span>`
         : ((x.pklx && x.pklx.length) ? `<span class="ok2">✓</span> <span class="fn">${x.pklx.length} file Excel theo PO: ${esc(x.pklx.map((p) => p.px.po).join(', '))}</span>`
           : (x.pkl ? `<span class="ok2">✓</span> <span class="fn">${esc(x.pkl.file.name)}</span>` : '<span class="miss">chưa có</span>'))}</td>
       <td>${x.inb ? `<span class="ok2">✓</span> <span class="fn">${esc(x.inb.file.name)}</span>` : '<span class="miss">chưa có</span>'}</td></tr>`;
@@ -2098,6 +2168,7 @@ async function run() {
     for (const g of groups) {
       const inv = g.inv.inv;
       log(`── Hóa đơn ${inv.invNo || g.inv.file.name} (${inv.items.length} dòng)${g.isFab ? ` — vải · ${g.fabName}` : (g.pkl ? '' : ' — không có packing list')}${g.inb ? '' : ' — CHƯA CÓ INBOUND'}`);
+      if (g.isFab && g.pdfInv) log(`  Hóa đơn GTGT: ${inv.invNo} ngày ${inv.invDate} (${g.pdfInv.file.name})`, 'ok');
       const pklGroups = g.isFab ? g.inv.fab.pkl : (g.pkl ? parsePacking((await classify(g.pkl.file)).lines) : null);
       const pxList = (g.pklx || []).map((p) => p.px).filter(Boolean);
       const doAnalyze = (rr) => (g.isFab
@@ -2302,6 +2373,18 @@ function writeInvoiceReport(rs, R, inv, lines, VAL, g, withWidths) {
     : ((g.pklx && g.pklx.length) ? g.pklx.map((p) => p.file.name).join(' · ')
       : (g.isFab ? '(nằm trong cùng file chứng từ)' : '(không có)'))]);
   put(R++, ['File inbound', g.inb ? g.inb.file.name : '(chưa có)']);
+  if (inv.pdfFile) put(R++, ['File hóa đơn GTGT (PDF)', inv.pdfFile, `${inv.invNo} · ${inv.invDate}`]);
+  if (VAL.noSerial) {
+    put(R, ['⚠ Ô "HD:" chỉ có số, chưa có ký hiệu hóa đơn — thả thêm file PDF hóa đơn GTGT để điền đủ (vd 1C26TYY#00001728).'], true, 'FFFFF2CC');
+    R++;
+  }
+  if (VAL.pdfBad) {
+    put(R, [`⚠ Tổng tiền hàng trên PKL (${VAL.itemsTotal}) ≠ hóa đơn GTGT (${VAL.pdfTotal}), lệch ${VAL.pdfDiff} — KIỂM TRA LẠI`], true, 'FFFFC7CE');
+    rs.getCell(R, 1).font = { bold: true, color: { argb: 'FFC00000' } };
+    R++;
+  } else if (!isNaN(VAL.pdfDiff) && VAL.pdfTotal != null) {
+    put(R++, ['Đối chiếu với hóa đơn GTGT', VAL.pdfTotal, 'khớp']);
+  }
   if (VAL.noInvoiceNo) {
     put(R, ['⚠ CHỨNG TỪ CHƯA CÓ SỐ HÓA ĐƠN — cột Invoice Number để trống. Điền ô "HD:" trong file rồi thả lại.'], true, 'FFFFF2CC');
     R++;
@@ -2504,6 +2587,9 @@ function renderAll(all) {
       ${a.g.isFab ? `<span class="tag via">vải · ${esc(a.g.fabName || '')}</span> ` : ''}
       ${(a.g.pkl || a.g.isFab || (a.g.pklx && a.g.pklx.length)) ? '' : '<span class="tag warnt">không có packing list</span> '}
       ${a.VAL.noInvoiceNo ? '<span class="tag warnt">chưa có số HĐ</span> ' : ''}
+      ${a.VAL.noSerial ? '<span class="tag warnt">thiếu ký hiệu HĐ</span> ' : ''}
+      ${a.g.pdfInv ? '<span class="tag good">có hóa đơn GTGT</span> ' : ''}
+      ${a.VAL.pdfBad ? `<span class="tag bad">lệch hóa đơn GTGT ${fmt(a.VAL.pdfDiff)}</span> ` : ''}
       ${a.VAL.valueBad ? '<span class="tag bad">SAI GIÁ TRỊ</span> ' : (bad.length ? `<span class="tag warnt">${bad.length} dòng lệch</span> ` : '<span class="tag good">khớp</span> ')}
       <span class="mono">${fmt(a.VAL.invTotal)}</span></summary>`;
     if (a.VAL.valueBad) {
