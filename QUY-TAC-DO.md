@@ -1,4 +1,4 @@
-# Nguyên tắc dò của công cụ Inbound SAP (v10.2)
+# Nguyên tắc dò của công cụ Inbound SAP (v10.3)
 
 Tài liệu này mô tả **chính xác** cách công cụ tìm và so khớp dữ liệu, để bạn kiểm tra lại được
 mọi con số nó đưa ra. Không có "thông minh" gì cả — chỉ là một chuỗi luật ưu tiên, chạy theo
@@ -568,3 +568,37 @@ A của file inbound đã có mã đó → dùng luôn (loại PO ghi là `inbou
   `Tổng SL ghi inbound` · `Lệch SL`.
 - Chia FIFO bỏ qua dòng PO đã giao đủ (xem Y4).
 - Ghép hóa đơn PDF ↔ PKL theo số `HD:` và ngày (xem Y5).
+
+---
+
+## Thay đổi của v10.3 (07.10.2026) — hóa đơn ITL đổi cách ghi PO
+
+Từ 10.2026 hóa đơn của ITL (ký hiệu `1C26TVN`, bản Viettel) **ghi thẳng PO ScaF** sau dấu `//`
+thay cho mã ScaX kiểu cũ:
+
+```
+cũ :  … / LB 5873 // TRIMMINGVN-0725      → phải tra bảng PO SCAF-SCAX
+mới:  … / VCH101F // TRI0012500           → đã là PO SAP
+      … / LB 6620 // TRI0010400
+```
+
+Vì luật dò PO cũ chỉ nhận dạng `TRIMMINGVN-xxxx` (regex `[A-Z]{4,}-\d{3,5}`) nên với hóa đơn mới
+mã PO **không đọc được**, mọi dòng ra `THIẾU FILE PO` và **"Xuất danh sách PO" ra 0 PO**.
+
+**Sửa:** thêm một bước nữa vào `resolvePo`, chạy sau hai bước tra bảng:
+
+> Nếu trong mô tả có token đúng dạng **2–6 chữ cái + đúng 7 chữ số** (`TRI0012500`, `TEC0002400`,
+> `DUY0094000`) thì dùng luôn làm PO SAP, **không cần file PO SCAF-SCAX**. Loại PO ghi là
+> `ScaF (sẵn trên hóa đơn)`.
+
+Hai chi tiết phải cẩn thận:
+
+- `PODUY0095800` (Inkava dán liền chữ PO) cũng đúng dạng 5 chữ + 7 số → phải **bỏ hai chữ `PO`
+  đầu** khi phần còn lại vẫn đúng dạng, nếu không sẽ tra ra một mã PO không tồn tại.
+- Mã PO tra được nhưng **không có trong cột A của file inbound** → tự dò lại theo cột A
+  (trước đây chỉ dò khi hoàn toàn không tra được).
+
+Ngoài ra: đọc thêm mã PO ngay sau `//` vào trường `po` của dòng hàng để báo cáo hiện đúng mã, và
+**một `Despatch Note` chia thành nhiều hóa đơn thì các hóa đơn đó dùng chung một packing list**
+(bộ `DBVN230276` được chia cho hai hóa đơn `2564` và `2565`; trước đây hóa đơn thứ hai bị mất
+packing list vì mỗi file chỉ được gán cho một hóa đơn).

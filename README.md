@@ -1,4 +1,4 @@
-# Inbound SAP – Đối chiếu hóa đơn (v10.2 — 6 chủ hàng)
+# Inbound SAP – Đối chiếu hóa đơn (v10.3 — 6 chủ hàng)
 
 Trang web tĩnh (1 file `index.html`) xử lý **nhiều hóa đơn cùng lúc**: điền số/ngày hóa đơn vào file
 inbound SAP và đối chiếu số lượng – đơn giá – thành tiền giữa **hóa đơn – inbound – packing list – PO SCAF-SCAX**.
@@ -102,6 +102,7 @@ và ghi rõ *CHƯA CÓ INBOUND*.
 | nhãn `lệch hóa đơn GTGT` | Tổng tiền hàng trên PKL khác `Cộng tiền hàng` trên hóa đơn PDF — kiểm tra lại |
 | nhãn `lệch tổng SL` | Dòng `Tổng cộng` trên chứng từ khác tổng `Invoice Quantity` đã ghi vào file inbound — kiểm tra lại |
 | `LỖI` | Không tra được PO (vải: thử thả thêm file PO SCAF-SCAX) |
+| `THIẾU FILE PO` | Mã PO trên hóa đơn chưa đúng dạng SAP và chưa có file PO SCAF-SCAX để tra |
 
 ## Đưa lên GitHub Pages
 

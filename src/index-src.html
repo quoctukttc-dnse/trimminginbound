@@ -82,7 +82,7 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
 </head>
 <body>
 <div class="wrap">
-  <h1>Inbound SAP – Đối chiếu hóa đơn <span class="ver">v10.2 · 05.10.2026 · 6 chủ hàng</span></h1>
+  <h1>Inbound SAP – Đối chiếu hóa đơn <span class="ver">v10.3 · 07.10.2026 · 6 chủ hàng</span></h1>
   <p class="sub">Kéo cả thư mục (nhiều hóa đơn) vào đây. Công cụ tự nhận diện <b>chủ hàng</b> và loại file — trimming (hóa đơn PDF của ITL, Inkava) hoặc vải (chứng từ Excel của Techwork, New Style–BLAO, Quanzhou Hengyu, J&amp;H Yubo) — ghép thành từng bộ rồi đối chiếu. Chưa có inbound thì xuất <b>danh sách PO</b> để tạo trên SAP; chưa có packing list thì chỉ đối chiếu với hóa đơn. Mọi xử lý chạy trong trình duyệt.</p>
 
   <div class="card">
@@ -113,7 +113,11 @@ code{background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-size:12
       <ul class="rules">
         <li>Ghép bộ: cùng thư mục → tên file chứa số hóa đơn → cùng số <em>Despatch Note</em> (packing list) → trùng PO nhiều nhất (inbound).</li>
         <li>Số hóa đơn: ký hiệu + <code>#</code> + số đệm 8 chữ số → <code>1C26TVN#00002086</code>; ngày dạng <code>dd.mm.yyyy</code> ghi text.</li>
-        <li>PO: mã trong dòng mô tả hóa đơn → tra cột <em>PO No ScaX</em>; không thấy thì dò cột <em>PO No.</em> (PO đã là ScaF) → lọc cột A file inbound.</li>
+        <li>PO: mã trong dòng mô tả hóa đơn → tra cột <em>PO No ScaX</em> → không thấy thì dò cột <em>PO No.</em> (PO đã là ScaF)
+        → <b>nếu bản thân mã đã đúng dạng SAP (2–6 chữ + đúng 7 số, vd <code>TRI0012500</code>) thì dùng luôn, không cần file PO</b>
+        → cuối cùng đối chiếu với cột A của file inbound. Hóa đơn ITL từ 10.2026 ghi thẳng PO ScaF sau <code>//</code>
+        (<code>… / VCH101F // TRI0012500</code>) nên không còn cần bảng chuyển đổi.</li>
+        <li>Một <em>Despatch Note</em> có thể bị chia thành nhiều hóa đơn → các hóa đơn đó <b>dùng chung một packing list</b>.</li>
         <li>Item: lấy mã giữa <code>/</code> và <code>//</code> trên hóa đơn → sinh các biến thể từ chi tiết đến chung
         (<code>LB 5731 Main C/509</code> → <code>LB5731MAINC/509</code> · <code>LB5731C/509</code> · <code>LB5731</code>),
         thử lần lượt trong <em>Material Description</em> + <em>Specification</em> (bỏ hết dấu cách, không phân biệt hoa thường),

@@ -173,6 +173,15 @@ function parseInvoice(lines) {
       if (last && !last.po) last.po = po; else pendingPo = po;
     }
   }
+  /* Hóa đơn ITL từ 10.2026 ghi thẳng PO ScaF sau "//": "… / VCH101F // TRI0012500" */
+  for (const it of items) {
+    if (it.po) continue;
+    const m1 = (it.text || '').toUpperCase().match(/\/\/\s*([A-Z]{2,6}\d{4,})/);
+    if (m1) { it.po = m1[1]; continue; }
+    const m2 = (it.text || '').toUpperCase().match(/\b([A-Z]{2,6}\d{7})\b/);
+    if (m2) it.po = m2[1];
+  }
+
   /* Dạng mô tả khác (Inkava): "PODUY0095800- Label L56xW20MM- ALABPRWV0228"
      — không có dấu "//", PO dán liền chữ PO, mã hàng là token cuối.            */
   for (const it of items) {
@@ -205,14 +214,26 @@ function codeVariants(raw) {
   return [...new Set(out.filter((x) => x.length >= 3))];
 }
 
-/* Tra PO: ưu tiên PO ScaX (TRIMMINGVN-xxxx), nếu không có thì thử PO ScaF (mã PO No. trong file PO) */
+/* Mã PO đã đúng dạng SAP: 2–6 chữ cái + đúng 7 chữ số (TRI0012500, TEC0002400, DUY0094000) */
+const RE_SAPPO = /^[A-Z]{2,6}\d{7}$/;
+
+/* Tra PO: ưu tiên PO ScaX (TRIMMINGVN-xxxx) → PO ScaF trong file PO →
+   nếu bản thân mã trên hóa đơn đã đúng dạng SAP thì dùng luôn (không cần file PO) */
 function resolvePo(item, poIdx) {
   const text = (item.text || '') + ' ' + (item.po || '');
   const raw = [...new Set(text.toUpperCase().match(/[A-Z0-9][A-Z0-9\-\/]{3,}/g) || [])];
   const toks = [...new Set([].concat(...raw.map((t) => [t, t.replace(/[-\/]+$/, ''), t.replace(/^PO/, '').replace(/[-\/]+$/, '')])))]
     .filter((t) => t.length >= 4);
-  for (const t of toks) if (poIdx.scax.has(t)) return { scax: t, sap: poIdx.scax.get(t), via: 'ScaX' };
-  for (const t of toks) if (poIdx.sap.has(t)) return { scax: '', sap: poIdx.sap.get(t), via: 'ScaF' };
+  if (poIdx) {
+    for (const t of toks) if (poIdx.scax.has(t)) return { scax: t, sap: poIdx.scax.get(t), via: 'ScaX' };
+    for (const t of toks) if (poIdx.sap.has(t)) return { scax: '', sap: poIdx.sap.get(t), via: 'ScaF' };
+  }
+  for (const t of toks) {
+    if (!RE_SAPPO.test(t)) continue;
+    /* "PODUY0095800" là chữ PO dán liền mã PO → ưu tiên phần sau chữ PO */
+    const bare = t.startsWith('PO') && RE_SAPPO.test(t.slice(2)) ? t.slice(2) : t;
+    return { scax: '', sap: bare, via: 'ScaF (sẵn trên hóa đơn)' };
+  }
   return { scax: item.po || '', sap: '', via: '' };
 }
 
@@ -540,7 +561,7 @@ async function buildGroups() {
     it.inv = parseInvoice(c.lines);
     it.note = c.note;
     it.tag = (it.inv.no || '').replace(/^0+/, '');
-    it.sapPos = [...new Set(it.inv.items.map((x) => (poIdx ? resolvePo(x, { scax: poIdx.map, sap: poIdx.sap }).sap : '')).filter(Boolean))];
+    it.sapPos = [...new Set(it.inv.items.map((x) => resolvePo(x, poIdx ? { scax: poIdx.map, sap: poIdx.sap } : null).sap).filter(Boolean))];
   }
   for (const p of pkls) p.note = (await classify(p.file)).note;
   for (const p of pxs) p.px = (await classify(p.file)).px;
@@ -576,6 +597,12 @@ async function buildGroups() {
     return res;
   };
   const pklOf = assign(pkls, (a, b) => (a.note && b.note && a.note === b.note ? 4 : 0));
+  /* một bộ hàng (Despatch Note) có thể được chia thành nhiều hóa đơn → cho dùng chung packing list */
+  for (const it of invs) {
+    if (pklOf.get(it) || !it.note) continue;
+    const sh = pkls.find((p) => p.note && p.note === it.note);
+    if (sh) pklOf.set(it, sh);
+  }
   const inbOf = assign(inbs, (a, b) => {
     const c = CACHE.get(b.file);
     if (!c || !c.pos || !a.sapPos.length) return 0;
@@ -759,7 +786,7 @@ function claimScore(row, R) {
 /* ================= Phân tích 1 hóa đơn ================= */
 function analyze(inv, pkl, rows, po, pklx) {
   const lines = [];
-  const resolved = inv.items.map((it) => ({ it, rp: po ? resolvePo(it, { scax: po.map, sap: po.sap }) : { scax: it.po || '', sap: '', via: '' } }));
+  const resolved = inv.items.map((it) => ({ it, rp: resolvePo(it, po ? { scax: po.map, sap: po.sap } : null) }));
   const priceKey = {};   // để chỉ ghép theo đơn giá khi (PO + đơn giá) là duy nhất trong hóa đơn
   resolved.forEach(({ it, rp }) => { const k = (rp.sap || '') + '|' + it.price; priceKey[k] = (priceKey[k] || 0) + 1; });
 
@@ -772,7 +799,8 @@ function analyze(inv, pkl, rows, po, pklx) {
   if (rows) {
     const inbPos = [...new Set(rows.map((x) => x.poV.trim().toUpperCase()))];
     for (const R of resolved) {
-      if (R.rp.sap) continue;
+      /* đã tra được nhưng mã đó không có trong file inbound → thử lại theo cột A của inbound */
+      if (R.rp.sap && inbPos.includes(R.rp.sap.trim().toUpperCase())) continue;
       const cands = [...new Set(((R.it.text || '') + ' ' + (R.it.po || '')).toUpperCase().match(/[A-Z]{2,6}\d{4,}/g) || [])];
       const hitPo = inbPos.find((p) => cands.some((c) => c === p || c.endsWith(p) || p.endsWith(c)));
       if (hitPo) { R.rp = { scax: '', sap: hitPo, via: 'inbound' }; }
@@ -978,7 +1006,7 @@ function analyze(inv, pkl, rows, po, pklx) {
     }
 
     let status, note;
-    if (!po) { status = 'THIẾU FILE PO'; note = 'Chưa tải file PO SCAF-SCAX nên không tra được PO'; }
+    if (!sapPo && !po) { status = 'THIẾU FILE PO'; note = `Mã PO trên hóa đơn ("${it.po || 'không đọc được'}") chưa đúng dạng SAP — cần tải file PO SCAF-SCAX để tra chuyển đổi`; }
     else if (!sapPo) { status = 'LỖI'; note = `Không tìm thấy PO "${it.po}" trong file PO SCAF-SCAX (đã dò cả cột PO No ScaX và PO No.)`; }
     else if (!rows) {
       status = 'CHƯA CÓ INBOUND';
@@ -1129,7 +1157,7 @@ async function run() {
   try {
     const po = STATE.poIdx;
     const needPo = groups.some((g) => !g.isFab);
-    if (!po && needPo) log('Chưa có file PO SCAF-SCAX — không tra được PO ScaX → ScaF.', 'err');
+    if (!po && needPo) log('Chưa có file PO SCAF-SCAX — chỉ cần khi hóa đơn ghi PO kiểu cũ (TRIMMINGVN-xxxx); PO đã đúng dạng SAP thì dùng trực tiếp.', 'ok');
     else if (!po) log('Chứng từ vải dùng PO ScaF sẵn — chưa cần file PO SCAF-SCAX (nếu có PO hệ cũ em sẽ nhắc).', 'ok');
     else log(`PO SCAF-SCAX: ${po.map.size} mã ScaX + ${po.sap.size} mã ScaF`, 'ok');
 
@@ -1218,7 +1246,7 @@ async function runPoList() {
       const inv = g.inv.inv;
       for (const it of inv.items) {
         const rp = g.isFab ? { scax: '', sap: it.po, via: 'ScaF' }
-          : (po ? resolvePo(it, { scax: po.map, sap: po.sap }) : { scax: it.po || '', sap: '', via: '' });
+          : resolvePo(it, po ? { scax: po.map, sap: po.sap } : null);
         if (!rp.sap) { unresolved.push({ invNo: inv.invNo, code: it.code, po: it.po || '(không đọc được)', qty: it.qty }); continue; }
         const k = rp.sap.toUpperCase();
         if (!map.has(k)) map.set(k, { sap: rp.sap, scax: rp.scax || '', invs: new Set(), qty: 0, amount: 0, items: new Set() });
@@ -1248,7 +1276,7 @@ async function runPoList() {
       const inv = g.inv.inv;
       for (const it of inv.items) {
         const rp = g.isFab ? { scax: '', sap: it.po, via: 'ScaF' }
-          : (po ? resolvePo(it, { scax: po.map, sap: po.sap }) : { scax: '', sap: '', via: '' });
+          : resolvePo(it, po ? { scax: po.map, sap: po.sap } : null);
         d.addRow([rp.sap || '(không tra được)', rp.scax || '', inv.invNo, inv.invDate, it.code,
           it.qty, isNaN(it.amount) ? '' : it.amount, g.inb ? 'đã có inbound' : 'chưa có inbound']);
       }
